@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SPPG Ogan Ilir Sungai Pinang III</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --navy:#071e49;
+  --green:#92d05d;
+  --blue:#b5e0ea;
+  --gold:#d1b06c;
+
+  --bg:#f4f8fa;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#647080;
+  --border:#dce5ea;
+
+  --primary:var(--navy);
+  --primary-d:#041633;
+  --accent:#eef8e8;
+  --danger:#c0392b;
+  --success:#92d05d;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:
+    linear-gradient(180deg,#edf7fa 0%,#f7fafb 40%,#f4f8fa 100%);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  min-height:100vh;
+}
+
+header{
+  background:
+    linear-gradient(135deg,var(--navy) 0%,#0b2d63 70%,#174474 100%);
+  color:#fff;
+  padding:15px 16px;
+  position:sticky;
+  top:0;
+  z-index:20;
+  box-shadow:0 3px 14px rgba(7,30,73,.18);
+}
+
+header h1{
+  margin:0;
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:.2px;
+}
+
+header .sub{
+  font-size:12px;
+  opacity:.86;
+  margin-top:3px;
+}
+
+.wrap{
+  max-width:1000px;
+  margin:0 auto;
+  padding:16px;
+}
+
+.card{
+  background:rgba(255,255,255,.96);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:16px;
+  margin-bottom:15px;
+  box-shadow:0 4px 18px rgba(7,30,73,.05);
+}
+
+h2{
+  font-size:15px;
+  margin:0 0 12px;
+  color:var(--navy);
+}
+
+label{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin:9px 0 4px;
+  font-weight:600;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:10px 11px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:#fff;
+  color:var(--text);
+  font-size:14px;
+  outline:none;
+  transition:.15s;
+}
+
+textarea{
+  min-height:85px;
+  resize:vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(181,224,234,.35);
+}
+
+button{
+  cursor:pointer;
+  border:none;
+  border-radius:9px;
+  padding:9px 14px;
+  font-size:13px;
+  font-weight:700;
+  transition:.15s;
+}
+
+button:hover{
+  transform:translateY(-1px);
+}
+
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.btn-primary{
+  background:var(--navy);
+  color:#fff;
+}
+
+.btn-primary:hover{
+  background:#0b2d63;
+}
+
+.btn-green{
+  background:var(--green);
+  color:#071e49;
+}
+
+.btn-gold{
+  background:var(--gold);
+  color:#fff;
+}
+
+.btn-ghost{
+  background:#fff;
+  border:1px solid var(--border);
+  color:var(--navy);
+}
+
+.btn-danger{
+  background:var(--danger);
+  color:#fff;
+}
+
+.btn-sm{
+  padding:6px 10px;
+  font-size:12px;
+}
+
+.row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.tabs{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  padding-bottom:2px;
+}
+
+.tab{
+  padding:8px 12px;
+  border-radius:9px;
+  background:#fff;
+  border:1px solid var(--border);
+  font-size:13px;
+  white-space:nowrap;
+  cursor:pointer;
+  color:var(--navy);
+  font-weight:600;
+}
+
+.tab.active{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:8px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
+
+th{
+  color:var(--muted);
+  font-weight:700;
+  font-size:11px;
+  text-transform:uppercase;
+}
+
+tr:hover td{
+  background:#f8fbfc;
+}
+
+.tblwrap{
+  overflow-x:auto;
+}
+
+.stat{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.stat .box{
+  flex:1;
+  min-width:125px;
+  background:linear-gradient(135deg,#f1f8eb,#eef8fb);
+  border:1px solid #dcebd5;
+  border-radius:12px;
+  padding:13px;
+  text-align:center;
+}
+
+.stat .box b{
+  font-size:23px;
+  display:block;
+  color:var(--navy);
+}
+
+.stat .box span{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.profile-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:10px;
+}
+
+.profile-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:#eef8e8;
+  color:#315f20;
+  border:1px solid #d7eacb;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.category-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin:10px 0;
+}
+
+.category{
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:12px;
+  background:#fff;
+  cursor:pointer;
+  text-align:center;
+  font-weight:700;
+  color:var(--navy);
+}
+
+.category.active{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+
+.err{
+  background:#fdecea;
+  color:var(--danger);
+  border-radius:9px;
+  padding:9px 11px;
+  font-size:12px;
+  margin-top:9px;
+  max-height:180px;
+  overflow:auto;
+}
+
+.ok{
+  background:#eef8e8;
+  color:#315f20;
+  border:1px solid #d7eacb;
+  border-radius:9px;
+  padding:9px 11px;
+  font-size:12px;
+  margin-top:9px;
+}
+
+.info{
+  background:#edf8fb;
+  color:#174474;
+  border:1px solid #cce8ef;
+  border-radius:9px;
+  padding:9px 11px;
+  font-size:12px;
+  margin-top:9px;
+}
+
+.modalbg{
+  position:fixed;
+  inset:0;
+  background:rgba(7,30,73,.48);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  z-index:50;
+}
+
+.modal{
+  background:#fff;
+  width:100%;
+  max-width:520px;
+  border-radius:16px 16px 0 0;
+  padding:18px;
+  max-height:92vh;
+  overflow:auto;
+  box-shadow:0 -10px 40px rgba(7,30,73,.2);
+}
+
+.hide{
+  display:none!important;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:11px;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+small.hint{
+  color:var(--muted);
+  font-size:11px;
+  display:block;
+  margin-top:8px;
+}
+
+.center{
+  text-align:center;
+  padding:30px 10px;
+  color:var(--muted);
+}
+
+.spin{
+  text-align:center;
+  padding:20px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.login-card{
+  max-width:430px;
+  margin:55px auto;
+}
+
+.login-logo{
+  width:65px;
+  height:65px;
+  border-radius:16px;
+  background:var(--navy);
+  color:var(--green);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:25px;
+  margin:0 auto 15px;
+  box-shadow:0 7px 20px rgba(7,30,73,.18);
+}
+
+.login-title{
+  text-align:center;
+  color:var(--navy);
+  font-size:18px;
+  font-weight:800;
+}
+
+.login-subtitle{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  margin:4px 0 18px;
+}
+
+@media(max-width:600px){
+  .wrap{padding:10px}
+  .card{padding:13px}
+  .category-grid{grid-template-columns:1fr}
+  .login-card{margin:25px auto}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>SPPG OGAN ILIR SUNGAI PINANG III</h1>
+  <div class="sub" id="headerSub">Sistem Pendataan Penerima Manfaat</div>
+</header>
+
+<div class="wrap" id="app"></div>
+
+<script>
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwxqNUiilKZsI2936p4bVKFUIUWcG5ajWL184rtMXiMVIfhymwMs6sTWB4vayaIetUUlw/exec";
+
+const $ = s => document.querySelector(s);
+
+let session = JSON.parse(
+  sessionStorage.getItem('sppg_session') || 'null'
+);
+
+let activeTab = 'siswa';
+let adminScope = 'siswa';
+let posyanduCategory = 'Balita';
+
+function apiConfigured(){
+  return API_URL && !API_URL.includes('PASTE_URL');
+}
+
+function clearSession(){
+  sessionStorage.removeItem('sppg_session');
+  session = null;
+}
+
+function sessionExpired(msg){
+  const m = String(msg || '').toLowerCase();
+
+  if(
+    m.includes('sesi tidak valid') ||
+    m.includes('sesi sudah berakhir') ||
+    m.includes('kedaluwarsa') ||
+    m.includes('token')
+  ){
+    clearSession();
+    renderLogin($('#app'));
+    return true;
+  }
+
+  return false;
+}
+
+async function apiGet(params){
+  const p = Object.assign({}, params || {});
+
+  if(session && session.token){
+    p.token = session.token;
+  }
+
+  const res = await fetch(
+    API_URL + '?' + new URLSearchParams(p).toString(),
+    {cache:'no-store'}
+  );
+
+  const data = await res.json();
+
+  if(!data.ok){
+    sessionExpired(data.error);
+  }
+
+  return data;
+}
+
+async function apiPost(body){
+  const payload = Object.assign({}, body || {});
+
+  if(session && session.token){
+    payload.token = session.token;
+  }
+
+  const res = await fetch(API_URL,{
+    method:'POST',
+    headers:{
+      'Content-Type':'text/plain;charset=utf-8'
+    },
+    body:JSON.stringify(payload),
+    cache:'no-store'
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    sessionExpired(data.error);
+  }
+
+  return data;
+}
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+async function logout(){
+  const oldToken = session && session.token;
+
+  try{
+    if(oldToken){
+      await apiPost({
+        action:'logout'
+      });
+    }
+  }catch(e){}
+
+  clearSession();
+
+  activeTab = 'siswa';
+  adminScope = 'siswa';
+
+  $('#headerSub').textContent =
+    'Sistem Pendataan Penerima Manfaat';
+
+  render();
+}
+
+/* =========================================================
+   HELPER
+========================================================= */
+
+function hitungUmur(tgl){
+  if(!tgl)return '';
+
+  const b = new Date(tgl);
+  const n = new Date();
+
+  if(isNaN(b.getTime()))return '';
+
+  let y = n.getFullYear() - b.getFullYear();
+  let m = n.getMonth() - b.getMonth();
+
+  if(n.getDate() < b.getDate())m--;
+
+  if(m < 0){
+    y--;
+    m += 12;
+  }
+
+  if(y < 0)return '-';
+
+  return y + ' th ' + m + ' bln';
+}
+
+function label(t){
+  if(t === 'siswa')return 'Siswa';
+  if(t === 'guru')return 'Guru';
+  return 'Peserta Posyandu';
+}
+
+function fieldsFor(type){
+  if(type === 'siswa'){
+    return [
+      ['nama','Nama Siswa','text'],
+      ['nisn','NISN','text'],
+      ['nik','NIK','text'],
+      ['tgl','Tanggal Lahir','date'],
+      ['jenisKelamin','Jenis Kelamin','select']
+    ];
+  }
+
+  if(type === 'guru'){
+    return [
+      ['nama','Nama Guru','text'],
+      ['nik','NIK','text'],
+      ['tgl','Tanggal Lahir','date']
+    ];
+  }
+
+  return [
+    ['nama','Nama','text'],
+    ['nik','NIK','text'],
+    ['tgl','Tanggal Lahir','date'],
+    ['jenisKelamin','Jenis Kelamin','select']
+  ];
+}
+
+function normalizeGenderFE(value){
+  const text = String(value || '').trim().toUpperCase();
+
+  const map = {
+    'L':'Laki-laki',
+    'LAKI-LAKI':'Laki-laki',
+    'LAKI LAKI':'Laki-laki',
+    'LAKI':'Laki-laki',
+    'P':'Perempuan',
+    'PEREMPUAN':'Perempuan',
+    'WANITA':'Perempuan'
+  };
+
+  return map[text] || '';
+}
+
+function validateRow(obj,type){
+  const errs=[];
+
+  if(!obj.nama)
+    errs.push('Nama wajib diisi');
+
+  if(
+    !obj.nik ||
+    !/^\d{16}$/.test(obj.nik)
+  )
+    errs.push('NIK harus 16 digit angka');
+
+  if(
+    type === 'siswa' &&
+    (!obj.nisn || !/^\d{5,10}$/.test(obj.nisn))
+  )
+    errs.push('NISN harus 5-10 digit angka');
+
+  if(
+    !obj.tgl ||
+    isNaN(new Date(obj.tgl).getTime())
+  )
+    errs.push('Tanggal lahir tidak valid');
+  else if(new Date(obj.tgl) > new Date())
+    errs.push('Tanggal lahir tidak boleh di masa depan');
+
+  if(
+    (type === 'siswa' || type === 'posyandu') &&
+    obj.jenisKelamin !== 'Laki-laki' &&
+    obj.jenisKelamin !== 'Perempuan'
+  )
+    errs.push('Jenis kelamin wajib dipilih: Laki-laki atau Perempuan');
+
+  return errs;
+}
+
+function esc(v){
+  return String(v ?? '').replace(
+    /[&<>'"]/g,
+    c => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      "'":'&#39;',
+      '"':'&quot;'
+    }[c])
+  );
+}
+
+/* =========================================================
+   MAIN RENDER
+========================================================= */
+
+async function render(){
+
+  const app = $('#app');
+
+  app.innerHTML = '';
+
+  if(!apiConfigured()){
+    app.innerHTML =
+      '<div class="card">' +
+      '<h2>Konfigurasi Belum Lengkap</h2>' +
+      '<p style="font-size:13px">API_URL belum diisi.</p>' +
+      '</div>';
+
+    return;
+  }
+
+  if(!session){
+    renderLogin(app);
+    return;
+  }
+
+  $('#headerSub').textContent =
+    session.role === 'admin'
+      ? 'Panel Admin'
+      : (
+        (session.unitName || 'Instansi') +
+        ' · ' +
+        (
+          session.unitType === 'posyandu'
+          ? 'Posyandu'
+          : 'Sekolah'
+        )
+      );
+
+  if(session.role === 'admin')
+    await renderAdmin(app);
+  else
+    await renderUnit(app);
+}
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function renderLogin(app){
+
+  const c = document.createElement('div');
+
+  c.className = 'card login-card';
+
+  c.innerHTML = `
+    <div class="login-logo">SP</div>
+
+    <div class="login-title">
+      SPPG OGAN ILIR
+    </div>
+
+    <div class="login-subtitle">
+      SUNGAI PINANG III
+    </div>
+
+    <label>Username</label>
+    <input id="lu"
+      autocomplete="username"
+      placeholder="Masukkan username">
+
+    <label>Password</label>
+    <input id="lp"
+      type="password"
+      autocomplete="current-password"
+      placeholder="Masukkan password">
+
+    <div class="row" style="margin-top:15px">
+      <button class="btn-primary"
+        id="btnLogin"
+        style="width:100%">
+        Masuk
+      </button>
+    </div>
+
+    <div id="loginErr"
+      class="err hide"></div>
+
+    <small class="hint">
+      Gunakan akun yang diberikan administrator.
+    </small>
+  `;
+
+  app.appendChild(c);
+
+  $('#btnLogin').onclick = async()=>{
+
+    const btn = $('#btnLogin');
+
+    btn.textContent = 'Memeriksa...';
+    btn.disabled = true;
+
+    try{
+
+      const res = await apiGet({
+        action:'login',
+        username:$('#lu').value.trim(),
+        password:$('#lp').value
+      });
+
+      if(res.ok && res.token){
+
+        session = Object.assign(
+          {},
+          res.user,
+          {token:res.token}
+        );
+
+        sessionStorage.setItem(
+          'sppg_session',
+          JSON.stringify(session)
+        );
+
+        render();
+
+      }else{
+
+        $('#loginErr').textContent =
+          res.error || 'Gagal login';
+
+        $('#loginErr').classList.remove('hide');
+      }
+
+    }catch(e){
+
+      $('#loginErr').textContent =
+        'Tidak bisa terhubung ke server. Cek koneksi/URL API.';
+
+      $('#loginErr').classList.remove('hide');
+
+    }
+
+    btn.textContent = 'Masuk';
+    btn.disabled = false;
+  };
+}
+
+/* =========================================================
+   UNIT
+========================================================= */
+
+async function renderUnit(app){
+
+  const types =
+    session.unitType === 'posyandu'
+      ? ['posyandu']
+      : ['siswa','guru'];
+
+  if(!types.includes(activeTab))
+    activeTab = types[0];
+
+  app.innerHTML = `
+
+    <div class="card">
+
+      <div class="profile-head">
+
+        <div>
+          <h2 style="margin-bottom:5px">
+            ${esc(session.unitName || 'Instansi')}
+          </h2>
+
+          <span class="profile-badge">
+            ${session.unitType === 'posyandu'
+              ? 'POSYANDU'
+              : 'SEKOLAH'}
+          </span>
+        </div>
+
+        <button
+          class="btn-gold btn-sm"
+          id="btnProfile">
+          👤 Profil Instansi
+        </button>
+
+      </div>
+
+      <div class="stat" id="statBox">
+        <div class="spin">Memuat...</div>
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="topbar">
+
+        <div class="tabs">
+
+          ${types.map(t=>`
+            <div
+              class="tab ${t===activeTab?'active':''}"
+              data-t="${t}">
+              ${label(t)}
+            </div>
+          `).join('')}
+
+        </div>
+
+        <button
+          class="btn-danger btn-sm"
+          id="btnLogout">
+          🚪 Keluar
+        </button>
+
+      </div>
+
+      ${
+        session.unitType === 'posyandu'
+        ? `
+          <div class="info">
+            Data Posyandu dibedakan berdasarkan kategori penerima manfaat.
+          </div>
+
+          <div class="category-grid">
+
+            ${['Balita','Ibu Hamil','Ibu Menyusui']
+              .map(c=>`
+                <div
+                  class="category ${c===posyanduCategory?'active':''}"
+                  data-category="${c}">
+                  ${c}
+                </div>
+              `).join('')}
+
+          </div>
+        `
+        : ''
+      }
+
+      <div class="row" style="margin-bottom:10px">
+
+        <button
+          class="btn-green btn-sm"
+          id="btnAdd">
+          + Tambah
+        </button>
+
+        <button
+          class="btn-ghost btn-sm"
+          id="btnImport">
+          Import Excel
+        </button>
+
+        <button
+          class="btn-ghost btn-sm"
+          id="btnExport">
+          Download Excel
+        </button>
+
+        <input
+          type="file"
+          id="fileImport"
+          accept=".xlsx,.xls,.csv"
+          class="hide">
+
+      </div>
+
+      <div id="importMsg"></div>
+
+      <div class="tblwrap" id="tblWrap">
+        <div class="spin">Memuat data...</div>
+      </div>
+
+    </div>
+  `;
+
+  $('#btnLogout').onclick = logout;
+
+  $('#btnProfile').onclick =
+    () => openProfile();
+
+  document
+    .querySelectorAll('.tab')
+    .forEach(t=>{
+      t.onclick=()=>{
+        activeTab=t.dataset.t;
+        render();
+      };
+    });
+
+  document
+    .querySelectorAll('[data-category]')
+    .forEach(el=>{
+      el.onclick=()=>{
+        posyanduCategory =
+          el.dataset.category;
+
+        render();
+      };
+    });
+
+  $('#btnAdd').onclick =
+    ()=>openForm(activeTab,null);
+
+  $('#btnExport').onclick =
+    ()=>exportExcel(activeTab,session.unitName);
+
+  $('#btnImport').onclick =
+    ()=>$('#fileImport').click();
+
+  $('#fileImport').onchange=e=>{
+    if(e.target.files[0])
+      importExcel(
+        e.target.files[0],
+        activeTab
+      );
+
+    e.target.value='';
+  };
+
+  const statHtml = types.map(t=>`
+    <div class="box" data-c="${t}">
+      <b>…</b>
+      <span>${label(t)}</span>
+    </div>
+  `).join('');
+
+  $('#statBox').innerHTML = statHtml;
+
+  for(const t of types){
+
+    const res =
+      await apiGet({
+        action:'list',
+        type:t
+      });
+
+    if(res.ok){
+
+      const box =
+        document.querySelector(
+          '#statBox .box[data-c="'+t+'"] b'
+        );
+
+      if(box)
+        box.textContent =
+          res.rows.length;
+    }
+  }
+
+  await loadTable(activeTab);
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+async function loadTable(type){
+
+  const res =
+    await apiGet({
+      action:'list',
+      type:type
+    });
+
+  if(!res.ok){
+
+    $('#tblWrap').innerHTML =
+      '<div class="err">'+
+      esc(res.error || 'Gagal memuat data')+
+      '</div>';
+
+    return;
+  }
+
+  let rows = res.rows || [];
+
+  if(
+    type === 'posyandu' &&
+    posyanduCategory
+  ){
+
+    rows = rows.filter(r =>
+      String(r.kategori || 'Balita') ===
+      String(posyanduCategory)
+    );
+  }
+
+  renderTable(rows,type);
+}
+
+function renderTable(rows,type){
+
+  const cols = fieldsFor(type);
+
+  let h = `
+    <table>
+      <thead>
+        <tr>
+          ${
+            type === 'posyandu'
+            ? '<th>Kategori</th>'
+            : ''
+          }
+
+          ${cols.map(c=>`
+            <th>${esc(c[1])}</th>
+          `).join('')}
+
+          <th>Umur</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  if(rows.length===0){
+
+    h += `
+      <tr>
+        <td colspan="${cols.length+3}"
+          class="center">
+          Belum ada data
+        </td>
+      </tr>
+    `;
+  }
+
+  rows.forEach(r=>{
+
+    h += `
+      <tr>
+
+        ${
+          type === 'posyandu'
+          ? `<td>${esc(r.kategori || '')}</td>`
+          : ''
+        }
+
+        ${cols.map(c=>`
+          <td>${esc(r[c[0]])}</td>
+        `).join('')}
+
+        <td>${esc(hitungUmur(r.tgl))}</td>
+
+        <td>
+          <div class="row" style="gap:4px">
+
+            <button
+              class="btn-ghost btn-sm"
+              data-edit="${esc(r._row)}">
+              Ubah
+            </button>
+
+            <button
+              class="btn-danger btn-sm"
+              data-del="${esc(r._row)}">
+              Hapus
+            </button>
+
+          </div>
+        </td>
+
+      </tr>
+    `;
+  });
+
+  h += `
+      </tbody>
+    </table>
+  `;
+
+  $('#tblWrap').innerHTML = h;
+
+  $('#tblWrap')
+    .querySelectorAll('[data-edit]')
+    .forEach(btn=>{
+
+      btn.onclick=()=>{
+
+        const r =
+          rows.find(
+            x=>String(x._row) ===
+            btn.dataset.edit
+          );
+
+        if(r)
+          openForm(type,r);
+      };
+    });
+
+  $('#tblWrap')
+    .querySelectorAll('[data-del]')
+    .forEach(btn=>{
+
+      btn.onclick =
+        ()=>deleteRow(
+          type,
+          Number(btn.dataset.del)
+        );
+    });
+}
+
+/* =========================================================
+   TAMBAH / EDIT DATA
+========================================================= */
+
+async function deleteRow(type,row){
+
+  if(!confirm('Hapus data ini?'))
+    return;
+
+  const res =
+    await apiPost({
+      action:'delete',
+      type:type,
+      row:row
+    });
+
+  if(!res.ok){
+
+    alert(
+      res.error ||
+      'Gagal menghapus'
+    );
+
+    return;
+  }
+
+  render();
+}
+
+function fieldInputHtml(c, existing){
+
+  const value =
+    existing
+    ? (existing[c[0]] || '')
+    : '';
+
+  if(c[2] === 'select'){
+
+    const options = ['Laki-laki','Perempuan'];
+
+    return `
+      <label>${esc(c[1])}</label>
+
+      <select id="f_${c[0]}">
+        <option value="">Pilih...</option>
+        ${options.map(o=>`
+          <option
+            value="${o}"
+            ${value===o?'selected':''}>
+            ${o}
+          </option>
+        `).join('')}
+      </select>
+    `;
+  }
+
+  return `
+    <label>${esc(c[1])}</label>
+
+    <input
+      id="f_${c[0]}"
+      type="${c[2]}"
+      value="${esc(value)}">
+  `;
+}
+
+function openForm(type,existing){
+
+  const cols =
+    fieldsFor(type);
+
+  const bg =
+    document.createElement('div');
+
+  bg.className='modalbg';
+
+  bg.innerHTML = `
+    <div class="modal">
+
+      <h2>
+        ${existing?'Ubah':'Tambah'}
+        ${esc(label(type))}
+      </h2>
+
+      ${
+        type === 'posyandu'
+        ? `
+          <label>Kategori</label>
+
+          <select id="f_kategori">
+
+            ${['Balita','Ibu Hamil','Ibu Menyusui']
+              .map(c=>`
+                <option
+                  value="${c}"
+                  ${(existing?.kategori||posyanduCategory)===c?'selected':''}>
+                  ${c}
+                </option>
+              `).join('')}
+
+          </select>
+        `
+        : ''
+      }
+
+      ${cols.map(c=>fieldInputHtml(c, existing)).join('')}
+
+      <label>Umur (otomatis)</label>
+
+      <input
+        id="f_umur"
+        disabled>
+
+      <div class="row"
+        style="margin-top:14px">
+
+        <button
+          class="btn-primary"
+          id="btnSave">
+          Simpan
+        </button>
+
+        <button
+          class="btn-ghost"
+          id="btnCancel">
+          Batal
+        </button>
+
+      </div>
+
+      <div
+        id="formErr"
+        class="err hide">
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(bg);
+
+  const upd=()=>{
+    $('#f_umur').value =
+      hitungUmur(
+        $('#f_tgl').value
+      );
+  };
+
+  $('#f_tgl').oninput=upd;
+
+  upd();
+
+  $('#btnCancel').onclick =
+    ()=>bg.remove();
+
+  $('#btnSave').onclick =
+    async()=>{
+
+      const obj={};
+
+      cols.forEach(c=>{
+        obj[c[0]] =
+          $('#f_'+c[0])
+          .value
+          .trim();
+      });
+
+      if(type === 'posyandu'){
+
+        obj.kategori =
+          $('#f_kategori').value;
+      }
+
+      const errs =
+        validateRow(obj,type);
+
+      if(errs.length){
+
+        $('#formErr').innerHTML =
+          errs.map(esc).join('<br>');
+
+        $('#formErr')
+          .classList.remove('hide');
+
+        return;
+      }
+
+      const b =
+        $('#btnSave');
+
+      b.disabled=true;
+      b.textContent='Menyimpan...';
+
+      try{
+
+        const res =
+          existing
+          ? await apiPost({
+              action:'update',
+              type:type,
+              row:existing._row,
+              data:obj
+            })
+          : await apiPost({
+              action:'add',
+              type:type,
+              data:obj
+            });
+
+        if(!res.ok){
+
+          $('#formErr').textContent =
+            res.error ||
+            'Gagal menyimpan';
+
+          $('#formErr')
+            .classList.remove('hide');
+
+          b.disabled=false;
+          b.textContent='Simpan';
+
+          return;
+        }
+
+        bg.remove();
+
+        render();
+
+      }catch(e){
+
+        $('#formErr').textContent =
+          'Gagal terhubung ke server';
+
+        $('#formErr')
+          .classList.remove('hide');
+
+        b.disabled=false;
+        b.textContent='Simpan';
+      }
+    };
+}
+
+/* =========================================================
+   PROFIL INSTANSI
+========================================================= */
+
+async function openProfile(){
+
+  const res =
+    await apiGet({
+      action:'getProfile'
+    });
+
+  if(!res.ok){
+
+    alert(
+      res.error ||
+      'Gagal mengambil profil'
+    );
+
+    return;
+  }
+
+  const p =
+    res.profile || {};
+
+  const isPosyandu =
+    session.unitType === 'posyandu';
+
+  const bg =
+    document.createElement('div');
+
+  bg.className='modalbg';
+
+  bg.innerHTML = `
+    <div class="modal">
+
+      <div class="profile-head">
+
+        <div>
+          <h2>Profil Instansi</h2>
+
+          <span class="profile-badge">
+            ${isPosyandu?'POSYANDU':'SEKOLAH'}
+          </span>
+        </div>
+
+        <button
+          class="btn-ghost btn-sm"
+          id="closeProfile">
+          Tutup
+        </button>
+
+      </div>
+
+      <label>Nama Instansi</label>
+
+      <input
+        id="p_namaInstansi"
+        value="${esc(
+          session.unitName || ''
+        )}"
+        disabled>
+
+      ${
+        isPosyandu
+        ? `
+
+          <label>Nomor TPK</label>
+          <input
+            id="p_nomorTPK"
+            value="${esc(p.nomorTPK||'')}">
+
+          <label>Nama Bidan</label>
+          <input
+            id="p_namaBidan"
+            value="${esc(p.namaBidan||'')}">
+
+          <label>NIP Bidan</label>
+          <input
+            id="p_nipBidan"
+            value="${esc(p.nipBidan||'')}">
+
+          <label>Alamat Lengkap Posyandu</label>
+          <textarea id="p_alamat">${esc(p.alamat||'')}</textarea>
+
+          <label>Nama PIC</label>
+          <input
+            id="p_namaPIC"
+            value="${esc(p.namaPIC||'')}">
+
+          <label>Nomor HP PIC</label>
+          <input
+            id="p_hpPIC"
+            value="${esc(p.hpPIC||'')}">
+
+          <label>NIK PIC</label>
+          <input
+            id="p_nikPIC"
+            value="${esc(p.nikPIC||'')}">
+
+        `
+        : `
+
+          <label>NISN</label>
+          <input
+            id="p_nisn"
+            value="${esc(p.nisn||'')}">
+
+          <label>Nama Kepala Sekolah</label>
+          <input
+            id="p_namaKepsek"
+            value="${esc(p.namaKepsek||'')}">
+
+          <label>NIP Kepala Sekolah</label>
+          <input
+            id="p_nipKepsek"
+            value="${esc(p.nipKepsek||'')}">
+
+          <label>Alamat Lengkap Sekolah</label>
+          <textarea id="p_alamat">${esc(p.alamat||'')}</textarea>
+
+          <label>Nama PIC</label>
+          <input
+            id="p_namaPIC"
+            value="${esc(p.namaPIC||'')}">
+
+          <label>Nomor HP PIC</label>
+          <input
+            id="p_hpPIC"
+            value="${esc(p.hpPIC||'')}">
+
+          <label>NIK PIC</label>
+          <input
+            id="p_nikPIC"
+            value="${esc(p.nikPIC||'')}">
+
+        `
+      }
+
+      <div
+        class="row"
+        style="margin-top:15px">
+
+        <button
+          class="btn-green"
+          id="btnSaveProfile">
+          Simpan Profil
+        </button>
+
+        <button
+          class="btn-ghost"
+          id="btnCancelProfile">
+          Batal
+        </button>
+
+      </div>
+
+      <div
+        id="profileMsg">
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(bg);
+
+  $('#closeProfile').onclick =
+    ()=>bg.remove();
+
+  $('#btnCancelProfile').onclick =
+    ()=>bg.remove();
+
+  $('#btnSaveProfile').onclick =
+    async()=>{
+
+      const b =
+        $('#btnSaveProfile');
+
+      b.disabled=true;
+      b.textContent='Menyimpan...';
+
+      const data={
+        namaInstansi:session.unitName,
+        alamat:$('#p_alamat').value.trim(),
+        namaPIC:$('#p_namaPIC').value.trim(),
+        hpPIC:$('#p_hpPIC').value.trim(),
+        nikPIC:$('#p_nikPIC').value.trim()
+      };
+
+      if(isPosyandu){
+
+        data.nomorTPK =
+          $('#p_nomorTPK').value.trim();
+
+        data.namaBidan =
+          $('#p_namaBidan').value.trim();
+
+        data.nipBidan =
+          $('#p_nipBidan').value.trim();
+
+      }else{
+
+        data.nisn =
+          $('#p_nisn').value.trim();
+
+        data.namaKepsek =
+          $('#p_namaKepsek').value.trim();
+
+        data.nipKepsek =
+          $('#p_nipKepsek').value.trim();
+      }
+
+      try{
+
+        const save =
+          await apiPost({
+            action:'saveProfile',
+            data:data
+          });
+
+        if(!save.ok){
+
+          $('#profileMsg').innerHTML =
+            '<div class="err">'+
+            esc(
+              save.error ||
+              'Gagal menyimpan profil'
+            )+
+            '</div>';
+
+          b.disabled=false;
+          b.textContent='Simpan Profil';
+
+          return;
+        }
+
+        $('#profileMsg').innerHTML =
+          '<div class="ok">'+
+          'Profil berhasil disimpan.'+
+          '</div>';
+
+        b.disabled=false;
+        b.textContent='Simpan Profil';
+
+      }catch(e){
+
+        $('#profileMsg').innerHTML =
+          '<div class="err">'+
+          'Gagal terhubung ke server.'+
+          '</div>';
+
+        b.disabled=false;
+        b.textContent='Simpan Profil';
+      }
+    };
+}
+
+/* =========================================================
+   IMPORT EXCEL
+========================================================= */
+
+function importExcel(file,type){
+
+  const reader =
+    new FileReader();
+
+  reader.onload =
+    async e=>{
+
+      try{
+
+        const wb =
+          XLSX.read(
+            new Uint8Array(e.target.result),
+            {type:'array'}
+          );
+
+        const rows =
+          XLSX.utils.sheet_to_json(
+            wb.Sheets[wb.SheetNames[0]],
+            {defval:''}
+          );
+
+        const cols =
+          fieldsFor(type);
+
+        const valid=[];
+        const errors=[];
+
+        rows.forEach((r,i)=>{
+
+          const obj={};
+
+          cols.forEach(c=>{
+
+            const key =
+              Object.keys(r).find(
+                k =>
+                  k.toLowerCase().trim() ===
+                  c[1].toLowerCase()
+              );
+
+            let v =
+              key !== undefined
+              ? r[key]
+              : '';
+
+            if(
+              c[2] === 'date' &&
+              typeof v === 'number'
+            ){
+
+              const d =
+                XLSX.SSF.parse_date_code(v);
+
+              v = d
+                ? `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`
+                : '';
+            }
+
+            if(c[2] === 'select'){
+
+              obj[c[0]] =
+                normalizeGenderFE(v);
+
+            }else{
+
+              obj[c[0]] =
+                String(v).trim();
+            }
+          });
+
+          if(type === 'posyandu'){
+            obj.kategori =
+              String(
+                r['Kategori'] ||
+                r['kategori'] ||
+                posyanduCategory
+              ).trim();
+          }
+
+          const errs =
+            validateRow(obj,type);
+
+          if(errs.length)
+            errors.push(
+              'Baris '+(i+2)+': '+
+              errs.join(', ')
+            );
+          else
+            valid.push(obj);
+        });
+
+        $('#importMsg').innerHTML =
+          '<div class="spin">'+
+          'Mengunggah '+
+          valid.length+
+          ' data...'+
+          '</div>';
+
+        let count=0;
+
+        if(valid.length){
+
+          const res =
+            await apiPost({
+              action:'bulkAdd',
+              type:type,
+              rows:valid
+            });
+
+          if(res.ok)
+            count=res.count;
+        }
+
+        let msg =
+          '<div class="ok">'+
+          '<b>'+
+          count+
+          ' data berhasil diimpor.'+
+          '</b>'+
+          '</div>';
+
+        if(errors.length){
+
+          msg +=
+            '<div class="err">'+
+            errors.length+
+            ' baris gagal:<br>'+
+            errors.map(esc).join('<br>')+
+            '</div>';
+        }
+
+        $('#importMsg').innerHTML=msg;
+
+        await loadTable(type);
+
+      }catch(err){
+
+        $('#importMsg').innerHTML =
+          '<div class="err">'+
+          'Gagal membaca file: '+
+          esc(err.message)+
+          '</div>';
+      }
+    };
+
+  reader.readAsArrayBuffer(file);
+}
+
+/* =========================================================
+   EXPORT EXCEL
+========================================================= */
+
+function exportExcel(type,unitName){
+
+  apiGet({
+    action:'list',
+    type:type
+  }).then(res=>{
+
+    if(!res.ok){
+
+      alert(
+        res.error ||
+        'Gagal mengambil data'
+      );
+
+      return;
+    }
+
+    let rows=res.rows || [];
+
+    if(
+      type === 'posyandu' &&
+      posyanduCategory
+    ){
+
+      rows =
+        rows.filter(r =>
+          String(r.kategori||'Balita') ===
+          String(posyanduCategory)
+        );
+    }
+
+    const cols =
+      fieldsFor(type);
+
+    const showUnit =
+      session.role === 'admin';
+
+    const header =
+      (showUnit?['Unit']:[])
+      .concat(
+        type==='posyandu'
+        ? ['Kategori']
+        : []
+      )
+      .concat(
+        cols.map(c=>c[1])
+      )
+      .concat(['Umur']);
+
+    const aoa=[header];
+
+    rows.forEach(r=>{
+
+      aoa.push(
+        (showUnit?[r.unit]:[])
+        .concat(
+          type==='posyandu'
+          ? [r.kategori||'']
+          : []
+        )
+        .concat(
+          cols.map(c=>r[c[0]]||'')
+        )
+        .concat([
+          hitungUmur(r.tgl)
+        ])
+      );
+    });
+
+    const ws =
+      XLSX.utils.aoa_to_sheet(aoa);
+
+    const wb =
+      XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      wb,
+      ws,
+      label(type).slice(0,30)
+    );
+
+    XLSX.writeFile(
+      wb,
+      label(type)+'_'+
+      (unitName||'data')
+        .toString()
+        .replace(/\s+/g,'_')+
+      '.xlsx'
+    );
+  });
+}
+
+/* =========================================================
+   ADMIN
+========================================================= */
+
+async function renderAdmin(app){
+
+  app.innerHTML=`
+
+    <div class="card">
+
+      <div class="topbar">
+
+        <div>
+          <h2>Panel Administrator</h2>
+          <span class="profile-badge">
+            ADMIN PUSAT
+          </span>
+        </div>
+
+        <button
+          class="btn-danger btn-sm"
+          id="btnLogout2">
+          🚪 Keluar
+        </button>
+
+      </div>
+
+      <div class="stat" id="statBoxA">
+        <div class="spin">Memuat...</div>
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="topbar">
+
+        <div class="tabs">
+
+          ${['siswa','guru','posyandu']
+            .map(t=>`
+              <div
+                class="tab ${t===adminScope?'active':''}"
+                data-t="${t}">
+                ${label(t)}
+              </div>
+            `).join('')}
+
+        </div>
+
+        <button
+          class="btn-ghost btn-sm"
+          id="btnExportA">
+          Download Excel
+        </button>
+
+      </div>
+
+      <div
+        class="tblwrap"
+        id="tblWrapA">
+        <div class="spin">
+          Memuat data...
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <h2>Kelola Pengguna Unit</h2>
+
+      <div class="row">
+
+        <input
+          id="nu"
+          placeholder="Username"
+          style="flex:1;min-width:100px">
+
+        <input
+          id="np"
+          placeholder="Password"
+          style="flex:1;min-width:100px">
+
+        <input
+          id="nn"
+          placeholder="Nama Unit"
+          style="flex:1;min-width:140px">
+
+        <select
+          id="nt"
+          style="flex:1;min-width:100px">
+
+          <option value="sekolah">
+            Sekolah
+          </option>
+
+          <option value="posyandu">
+            Posyandu
+          </option>
+
+        </select>
+
+        <button
+          class="btn-green btn-sm"
+          id="btnAddUser">
+          Tambah
+        </button>
+
+      </div>
+
+      <div id="userMsg"></div>
+
+      <div
+        class="tblwrap"
+        style="margin-top:12px">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Unit</th>
+              <th>Jenis</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody id="userTbl">
+
+            <tr>
+              <td colspan="4"
+                class="center">
+                Memuat...
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+  `;
+
+  $('#btnLogout2').onclick=logout;
+
+  document
+    .querySelectorAll('.tab')
+    .forEach(t=>{
+      t.onclick=()=>{
+        adminScope=t.dataset.t;
+        render();
+      };
+    });
+
+  $('#btnExportA').onclick =
+    ()=>exportExcel(
+      adminScope,
+      'Rekap_Gabungan'
+    );
+
+  $('#btnAddUser').onclick =
+    async()=>{
+
+      const uname =
+        $('#nu').value.trim();
+
+      const pw =
+        $('#np').value;
+
+      const nm =
+        $('#nn').value.trim();
+
+      const ty =
+        $('#nt').value;
+
+      if(!uname || !pw || !nm){
+
+        alert(
+          'Lengkapi semua isian'
+        );
+
+        return;
+      }
+
+      const b =
+        $('#btnAddUser');
+
+      b.disabled=true;
+
+      const res =
+        await apiPost({
+          action:'addUser',
+          username:uname,
+          password:pw,
+          unitName:nm,
+          unitType:ty
+        });
+
+      if(!res.ok){
+
+        $('#userMsg').innerHTML =
+          '<div class="err">'+
+          esc(res.error)+
+          '</div>';
+
+        b.disabled=false;
+
+        return;
+      }
+
+      render();
+    };
+
+  const counts={};
+
+  for(
+    const t of
+    ['siswa','guru','posyandu']
+  ){
+
+    const res =
+      await apiGet({
+        action:'list',
+        type:t
+      });
+
+    counts[t] =
+      res.ok
+      ? res.rows.length
+      : '?';
+  }
+
+  const users =
+    await apiGet({
+      action:'users'
+    });
+
+  $('#statBoxA').innerHTML=`
+
+    <div class="box">
+      <b>${counts.siswa}</b>
+      <span>Siswa</span>
+    </div>
+
+    <div class="box">
+      <b>${counts.guru}</b>
+      <span>Guru</span>
+    </div>
+
+    <div class="box">
+      <b>${counts.posyandu}</b>
+      <span>Peserta Posyandu</span>
+    </div>
+
+    <div class="box">
+      <b>${users.ok?users.users.length:'?'}</b>
+      <span>Unit Terdaftar</span>
+    </div>
+  `;
+
+  const listRes =
+    await apiGet({
+      action:'list',
+      type:adminScope
+    });
+
+  if(listRes.ok){
+
+    const cols =
+      fieldsFor(adminScope);
+
+    let h=`
+      <table>
+        <thead>
+          <tr>
+            <th>Unit</th>
+
+            ${
+              adminScope==='posyandu'
+              ? '<th>Kategori</th>'
+              : ''
+            }
+
+            ${
+              cols.map(c=>
+                '<th>'+
+                esc(c[1])+
+                '</th>'
+              ).join('')
+            }
+
+            <th>Umur</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    if(!listRes.rows.length){
+
+      h += `
+        <tr>
+          <td
+            colspan="${cols.length+3}"
+            class="center">
+            Belum ada data
+          </td>
+        </tr>
+      `;
+    }
+
+    listRes.rows.forEach(r=>{
+
+      h += `
+        <tr>
+
+          <td>${esc(r.unit)}</td>
+
+          ${
+            adminScope==='posyandu'
+            ? `<td>${esc(r.kategori||'')}</td>`
+            : ''
+          }
+
+          ${
+            cols.map(c=>
+              '<td>'+
+              esc(r[c[0]])+
+              '</td>'
+            ).join('')
+          }
+
+          <td>
+            ${esc(hitungUmur(r.tgl))}
+          </td>
+
+        </tr>
+      `;
+    });
+
+    h += `
+        </tbody>
+      </table>
+    `;
+
+    $('#tblWrapA').innerHTML=h;
+
+  }else{
+
+    $('#tblWrapA').innerHTML =
+      '<div class="err">'+
+      esc(listRes.error)+
+      '</div>';
+  }
+
+  if(users.ok){
+
+    $('#userTbl').innerHTML =
+      users.users.map(u=>`
+
+        <tr>
+
+          <td>${esc(u.username)}</td>
+
+          <td>${esc(u.unitName)}</td>
+
+          <td>
+            ${
+              u.unitType==='sekolah'
+              ? 'Sekolah'
+              : 'Posyandu'
+            }
+          </td>
+
+          <td>
+
+            <button
+              class="btn-danger btn-sm"
+              data-user="${esc(u.username)}">
+              Hapus
+            </button>
+
+          </td>
+
+        </tr>
+
+      `).join('') ||
+
+      `
+        <tr>
+          <td colspan="4"
+            class="center">
+            Belum ada user unit
+          </td>
+        </tr>
+      `;
+
+    document
+      .querySelectorAll('[data-user]')
+      .forEach(b=>{
+        b.onclick =
+          ()=>removeUser(
+            b.dataset.user
+          );
+      });
+  }
+}
+
+async function removeUser(username){
+
+  if(!confirm(
+    'Hapus user ini? Data yang sudah diinput tidak ikut terhapus.'
+  ))
+    return;
+
+  const res =
+    await apiPost({
+      action:'deleteUser',
+      username:username
+    });
+
+  if(!res.ok)
+    alert(
+      res.error ||
+      'Gagal menghapus'
+    );
+
+  render();
+}
+
+/* =========================================================
+   START
+========================================================= */
+
+render();
+</script>
+
+</body>
+</html>
