@@ -722,7 +722,8 @@ tr:hover td{
     background: white;
     color: black;
   }
-  .header, .toolbar, .tabs, .footer, .user-pill, button, input, .topbar, #adminStats, #adminAnnouncementArea {
+  /* Sembunyikan elemen navigasi, menu, footer halaman web, statistik, dan pengumuman */
+  .header, .toolbar, .tabs, .footer, .user-pill, button, input, select, .topbar, #adminStats, #adminAnnouncementArea, .admin-panel > h2:first-child {
     display: none !important;
   }
   .container {
@@ -734,6 +735,8 @@ tr:hover td{
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .print-header {
     display: block !important;
@@ -744,13 +747,13 @@ tr:hover td{
   }
   .print-header h2 {
     margin: 0 0 4px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     text-transform: uppercase;
   }
   .print-header h3 {
     margin: 0 0 4px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     text-transform: uppercase;
   }
