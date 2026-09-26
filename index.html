@@ -709,6 +709,60 @@ tr:hover td{
   flex-shrink:0;
 }
 
+/* KHUSUS CETAK LAPORAN PDF */
+.print-header{
+  display:none;
+}
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  .header, .toolbar, .tabs, .footer, .user-pill, button, input, .topbar {
+    display: none !important;
+  }
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+  }
+  .print-header h2 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    text-transform: uppercase;
+  }
+  .print-header p {
+    margin: 0;
+    font-size: 12px;
+  }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  th, td {
+    border: 1px solid #000 !important;
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+    color: black !important;
+  }
+  th {
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
 @media(max-width:1000px){
   .stats{
     grid-template-columns:repeat(3,1fr);
@@ -795,6 +849,8 @@ let posyanduCategory = 'Balita';
 let kelasCategory = '';
 
 let searchQuery = '';
+
+let adminUnitFilter = ''; // Filter unit instansi khusus admin
 
 let dataCache = {};
 
@@ -1618,7 +1674,6 @@ function toggleUserDropdown(e) {
   }
 }
 
-// Tutup dropdown jika klik di luar
 window.addEventListener('click', function() {
   const menu = document.getElementById('userDropdownMenu');
   if (menu) {
@@ -3727,6 +3782,7 @@ function adminTab(type){
 
   activeTab = type;
   searchQuery = '';
+  adminUnitFilter = ''; // Reset filter unit saat pindah tab
 
   renderAdmin();
 
@@ -3894,6 +3950,17 @@ async function loadAdminData(type){
     }
 
 
+    // Ambil daftar unik nama unit/instansi untuk dropdown filter
+    const uniqueUnits = [...new Set(rows.map(r => r.Unit).filter(Boolean))].sort();
+
+
+    // Filter berdasarkan unit instansi yang dipilih admin
+    if(adminUnitFilter.trim()){
+      rows = rows.filter(r => String(r.Unit || '') === adminUnitFilter);
+    }
+
+
+    // Filter pencarian berdasarkan Nama atau NIK
     if(searchQuery.trim()){
       const q = searchQuery.toLowerCase();
       rows = rows.filter(r => {
@@ -3910,20 +3977,47 @@ async function loadAdminData(type){
 
     area.innerHTML = `
 
-      <div class="toolbar"
-           style="padding:0 0 12px">
+      <div class="toolbar" style="padding:0 0 12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
 
-        <div class="toolbar-left" style="width:100%;">
+        <div class="toolbar-left" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <input
             type="text"
             class="form-control"
-            style="width:100%; max-width:250px; padding:7px 11px;"
+            style="width:200px; padding:7px 11px;"
             placeholder="Cari Nama atau NIK..."
             value="${esc(searchQuery)}"
             oninput="onAdminSearchInput(event)"
           >
+
+          <select
+            class="form-control"
+            style="width:200px; padding:7px 11px;"
+            onchange="onAdminUnitChange(event)"
+          >
+            <option value="">-- Semua Instansi --</option>
+            ${uniqueUnits.map(u => `
+              <option value="${esc(u)}" ${adminUnitFilter === u ? 'selected' : ''}>${esc(u)}</option>
+            `).join('')}
+          </select>
         </div>
 
+        <div class="toolbar-right">
+          <button
+            class="btn btn-success btn-sm"
+            onclick="window.print()"
+          >
+            🖨️ Cetak / PDF Laporan
+          </button>
+        </div>
+
+      </div>
+
+
+      <!-- Header khusus saat dicetak PDF -->
+      <div class="print-header">
+        <h2>Laporan Data ${esc(labelType(fetchType))} ${posyanduFilter ? '(' + posyanduFilter + ')' : ''}</h2>
+        <p>SPPG Ogan Ilir Sungai Pinang III ${adminUnitFilter ? '&middot; Instansi: ' + esc(adminUnitFilter) : ''}</p>
+        <p>Tanggal Cetak: ${new Date().toLocaleDateString('id-ID', {dateStyle:'full'})}</p>
       </div>
 
 
@@ -3937,7 +4031,7 @@ async function loadAdminData(type){
 
               <th>No</th>
 
-              <th>Unit</th>
+              <th>Unit / Instansi</th>
 
               ${
                 fetchType === 'posyandu'
@@ -4057,7 +4151,7 @@ async function loadAdminData(type){
                     colspan="20"
                     style="text-align:center"
                   >
-                    Belum ada data
+                    Belum ada data yang cocok
                   </td>
                 </tr>
               `
@@ -4085,6 +4179,11 @@ async function loadAdminData(type){
 
 function onAdminSearchInput(e){
   searchQuery = e.target.value;
+  loadAdminData(activeTab);
+}
+
+function onAdminUnitChange(e){
+  adminUnitFilter = e.target.value;
   loadAdminData(activeTab);
 }
 
