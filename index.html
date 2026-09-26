@@ -398,6 +398,7 @@ textarea.form-control{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
+  align-items:center;
 }
 
 .table-card{
@@ -750,13 +751,15 @@ let posyanduCategory = 'Balita';
 
 let kelasCategory = '';
 
+let searchQuery = '';
+
 let dataCache = {};
 
 let announcementCache = [];
 
 
 /* =========================================================
-   LOADING HELPER (BARU)
+   LOADING HELPER
 ========================================================= */
 function showLoading(text) {
   document.body.insertAdjacentHTML('beforeend', `
@@ -1677,6 +1680,7 @@ function renderUnit(){
 function switchTab(type){
 
   activeTab = type;
+  searchQuery = ''; // Reset pencarian saat pindah tab
 
   renderUnit();
 
@@ -1744,6 +1748,7 @@ function renderPosyanduCategories(){
 function selectCategory(cat){
 
   posyanduCategory = cat;
+  searchQuery = '';
 
   renderUnit();
 
@@ -1814,6 +1819,7 @@ function renderKelasCategories(){
 function selectKelas(kelas){
 
   kelasCategory = kelas;
+  searchQuery = '';
 
   renderUnit();
 
@@ -2119,6 +2125,17 @@ function renderTable(
   }
 
 
+  // Filter berdasarkan Pencarian Nama atau NIK
+  if(searchQuery.trim()){
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(r => {
+      const nama = String(r.Nama || '').toLowerCase();
+      const nik = String(r.NIK || '').toLowerCase();
+      return nama.includes(q) || nik.includes(q);
+    });
+  }
+
+
   const fields =
     fieldsFor(type);
 
@@ -2158,6 +2175,15 @@ function renderTable(
 
       <div class="toolbar-right">
 
+        <input
+          type="text"
+          class="form-control"
+          style="width:220px; padding:8px 12px;"
+          placeholder="Cari Nama atau NIK..."
+          value="${esc(searchQuery)}"
+          oninput="onSearchInput(event)"
+        >
+
         <button
           class="btn btn-success"
           onclick="exportExcel('${type}')"
@@ -2177,7 +2203,7 @@ function renderTable(
 
         ? `
           <div class="empty">
-            Belum ada data ${esc(labelType(type))}.
+            ${searchQuery ? 'Tidak ditemukan data yang cocok dengan pencarian.' : `Belum ada data ${esc(labelType(type))}.`}
           </div>
         `
 
@@ -2341,6 +2367,16 @@ function renderTable(
 
   `;
 
+}
+
+
+function onSearchInput(e){
+  searchQuery = e.target.value;
+  // Render ulang tabel instansi dengan filter pencarian aktif tanpa fetch ulang ke server
+  const area = document.getElementById('tableArea');
+  if(area){
+    renderTable(area, activeTab, getCachedRows(activeTab), false);
+  }
 }
 
 
@@ -2947,7 +2983,7 @@ async function deleteRow(
 
 
 /* =========================================================
-   TEMPLATE EXCEL
+   TEMPLATE EXCEL (DENGAN PETUNJUK PENGISIAN)
 ========================================================= */
 
 function downloadTemplate(type){
@@ -2955,14 +2991,21 @@ function downloadTemplate(type){
   const wb =
     XLSX.utils.book_new();
 
-
+  let instructions = [];
   let headers = [];
-
   let rows = [];
 
-
   if(type === 'siswa'){
-
+    instructions = [
+      ['PETUNJUK PENGISIAN TEMPLATE EXCEL SISWA:'],
+      ['1. Jangan mengubah, menghapus, atau memindahkan urutan nama kolom (header).'],
+      ['2. Kolom NIK harus tepat 16 digit angka.'],
+      ['3. Kolom NISN diisi 5 sampai 10 digit angka.'],
+      ['4. Tanggal Lahir wajib menggunakan format YYYY-MM-DD (Contoh: 2015-05-20).'],
+      ['5. Jenis Kelamin hanya diisi: Laki-laki atau Perempuan.'],
+      ['6. Kolom Kelas diisi sesuai tingkat instansi (Contoh SD: 1 s.d. 6, SMP: 7 s.d. 9, KB: A atau B).'],
+      [''] // Baris kosong pemisah
+    ];
     headers = [
       'Nama',
       'NISN',
@@ -2971,7 +3014,6 @@ function downloadTemplate(type){
       'Jenis Kelamin',
       'Kelas'
     ];
-
     rows = [[
       'Contoh Nama Siswa',
       '1234567890',
@@ -2980,35 +3022,45 @@ function downloadTemplate(type){
       'Laki-laki',
       '1'
     ]];
-
   }
-
 
   if(
     type === 'guru' ||
     type === 'tendik' ||
     type === 'penjaga'
   ){
-
+    instructions = [
+      ['PETUNJUK PENGISIAN TEMPLATE EXCEL PEGAWAI:'],
+      ['1. Jangan mengubah, menghapus, atau memindahkan urutan nama kolom (header).'],
+      ['2. Kolom NIK harus tepat 16 digit angka.'],
+      ['3. Tanggal Lahir wajib menggunakan format YYYY-MM-DD (Contoh: 1985-12-10).'],
+      ['4. Jenis Kelamin hanya diisi: Laki-laki atau Perempuan.'],
+      ['']
+    ];
     headers = [
       'Nama',
       'NIK',
       'Tanggal Lahir',
       'Jenis Kelamin'
     ];
-
     rows = [[
       'Contoh Nama',
       '1600000000000001',
       '1985-01-01',
       'Laki-laki'
     ]];
-
   }
 
-
   if(type === 'posyandu'){
-
+    instructions = [
+      ['PETUNJUK PENGISIAN TEMPLATE EXCEL POSYANDU:'],
+      ['1. Jangan mengubah, menghapus, atau memindahkan urutan nama kolom (header).'],
+      ['2. Kategori wajib diisi salah satu dari: Balita, Ibu Hamil, atau Ibu Menyusui.'],
+      ['3. Kolom NIK harus tepat 16 digit angka.'],
+      ['4. Tanggal Lahir wajib menggunakan format YYYY-MM-DD.'],
+      ['5. Usia Kehamilan khusus Ibu Hamil diisi angka 1, 2, atau 3 (Trimester). Kosongkan untuk Balita/Menyusui.'],
+      ['']
+    ];
     headers = [
       'Kategori',
       'Nama',
@@ -3017,9 +3069,7 @@ function downloadTemplate(type){
       'Jenis Kelamin',
       'Usia Kehamilan'
     ];
-
     rows = [
-
       [
         'Balita',
         'Contoh Balita',
@@ -3028,7 +3078,6 @@ function downloadTemplate(type){
         'Laki-laki',
         ''
       ],
-
       [
         'Ibu Hamil',
         'Contoh Ibu Hamil',
@@ -3037,25 +3086,22 @@ function downloadTemplate(type){
         'Perempuan',
         '2'
       ]
-
     ];
-
   }
 
+  // Gabungkan instruksi dan header/data ke dalam array of arrays (AOA)
+  const combinedData = [...instructions, headers, ...rows];
 
   const ws =
-    XLSX.utils.aoa_to_sheet([
-      headers,
-      ...rows
-    ]);
-
+    XLSX.utils.aoa_to_sheet(
+      combinedData
+    );
 
   XLSX.utils.book_append_sheet(
     wb,
     ws,
     labelType(type)
   );
-
 
   XLSX.writeFile(
     wb,
@@ -3075,14 +3121,40 @@ async function importExcel(event, type) {
   const file = event.target.files[0];
   if (!file) return;
 
-  // 1. Munculkan UI Loading
   showLoading('Membaca file Excel...');
 
   try {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'array' });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+    // Deteksi baris header otomatis (mencari baris yang mengandung kolom 'Nama' atau 'NIK')
+    let headerRowIndex = -1;
+    for(let i = 0; i < rawData.length; i++){
+      const rowStr = rawData[i].map(c => String(c).trim().toLowerCase());
+      if(rowStr.includes('nama') && (rowStr.includes('nik') || rowStr.includes('kategori'))){
+        headerRowIndex = i;
+        break;
+      }
+    }
+
+    let rows = [];
+    if(headerRowIndex !== -1){
+      const headers = rawData[headerRowIndex].map(h => String(h || '').trim());
+      for(let i = headerRowIndex + 1; i < rawData.length; i++){
+        const r = rawData[i];
+        if(!r || r.every(val => val === '')) continue;
+        const obj = {};
+        headers.forEach((h, idx) => {
+          obj[h] = r[idx] !== undefined ? r[idx] : '';
+        });
+        rows.push(obj);
+      }
+    } else {
+      // Fallback ke metode lama jika baris petunjuk tidak terdeteksi
+      rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    }
 
     const converted = [];
 
@@ -3104,7 +3176,9 @@ async function importExcel(event, type) {
         obj.usiaKehamilan = String(row['Usia Kehamilan'] || '').replace(/\D/g, '').slice(0, 1);
       }
 
-      converted.push(obj);
+      if(obj.nama || obj.nik){
+        converted.push(obj);
+      }
     });
 
     const valid = [];
@@ -3113,16 +3187,13 @@ async function importExcel(event, type) {
     converted.forEach((obj, i) => {
       const error = validateRow(obj, type);
       if (error) {
-        errors.push('Baris ' + (i + 2) + ': ' + error);
+        errors.push('Baris data: ' + error + ' (Nama: ' + (obj.nama || 'Kosong') + ')');
       } else {
         valid.push(obj);
       }
     });
 
-    // Sembunyikan Loading setelah selesai membaca file
     hideLoading();
-
-    // 2. Munculkan Modal Preview Data
     showImportPreviewModal(type, valid, errors, file.name);
 
   } catch (err) {
@@ -3130,12 +3201,10 @@ async function importExcel(event, type) {
     alert('Gagal membaca file: ' + err.message);
   }
 
-  // Bersihkan input agar bisa upload file yang sama kembali
   event.target.value = '';
 }
 
 function showImportPreviewModal(type, valid, errors, fileName) {
-  // Simpan array valid ke variabel global sementara agar mudah dieksekusi nanti
   window.tempImportData = valid;
 
   const modalId = 'previewImportModal';
@@ -3203,10 +3272,7 @@ async function executeImport(type, modalId) {
   const valid = window.tempImportData || [];
   if (!valid.length) return;
 
-  // Hapus modal preview
   document.getElementById(modalId).remove();
-  
-  // Munculkan kembali UI Loading
   showLoading('Mengunggah ' + valid.length + ' data ke server...');
 
   try {
@@ -3216,7 +3282,6 @@ async function executeImport(type, modalId) {
       rows: valid
     });
 
-    // Refresh tabel
     delete dataCache[cacheKey(type)];
     await loadTable(type);
 
@@ -3228,7 +3293,6 @@ async function executeImport(type, modalId) {
     alert('Import gagal: ' + err.message);
   }
   
-  // Bersihkan memori data sementara
   window.tempImportData = null;
 }
 
@@ -3514,7 +3578,9 @@ async function renderAdmin(){
               ['guru','Guru'],
               ['tendik','Tendik'],
               ['penjaga','Penjaga Sekolah'],
-              ['posyandu','Posyandu']
+              ['posyandu_balita','Posyandu: Balita'],
+              ['posyandu_bumil','Posyandu: Ibu Hamil'],
+              ['posyandu_busui','Posyandu: Ibu Menyusui']
             ].map(
               t => `
 
@@ -3617,6 +3683,7 @@ async function renderAdmin(){
 function adminTab(type){
 
   activeTab = type;
+  searchQuery = '';
 
   renderAdmin();
 
@@ -3654,7 +3721,8 @@ async function loadAdminStats(){
           type =>
             apiGet({
               action:'list',
-              type
+              type,
+              all:'true'
             })
         )
       );
@@ -3668,28 +3736,50 @@ async function loadAdminStats(){
         )
     );
 
+    const posyanduRows = getCachedRows('posyandu');
+    const countBalita = posyanduRows.filter(r => r.Kategori === 'Balita').length;
+    const countBumil = posyanduRows.filter(r => r.Kategori === 'Ibu Hamil').length;
+    const countBusui = posyanduRows.filter(r => r.Kategori === 'Ibu Menyusui').length;
+
 
     area.innerHTML = `
 
-      <div class="stats">
+      <div class="stats" style="grid-template-columns:repeat(7,1fr);">
 
-        ${types.map(
-          type => `
+        <div class="card stat">
+          <div class="stat-label">Siswa</div>
+          <div class="stat-value">${getCachedRows('siswa').length}</div>
+        </div>
 
-            <div class="card stat">
+        <div class="card stat">
+          <div class="stat-label">Guru</div>
+          <div class="stat-value">${getCachedRows('guru').length}</div>
+        </div>
 
-              <div class="stat-label">
-                ${labelType(type)}
-              </div>
+        <div class="card stat">
+          <div class="stat-label">Tendik</div>
+          <div class="stat-value">${getCachedRows('tendik').length}</div>
+        </div>
 
-              <div class="stat-value">
-                ${getCachedRows(type).length}
-              </div>
+        <div class="card stat">
+          <div class="stat-label">Penjaga</div>
+          <div class="stat-value">${getCachedRows('penjaga').length}</div>
+        </div>
 
-            </div>
+        <div class="card stat">
+          <div class="stat-label">Balita</div>
+          <div class="stat-value">${countBalita}</div>
+        </div>
 
-          `
-        ).join('')}
+        <div class="card stat">
+          <div class="stat-label">Ibu Hamil</div>
+          <div class="stat-value">${countBumil}</div>
+        </div>
+
+        <div class="card stat">
+          <div class="stat-label">Ibu Menyusui</div>
+          <div class="stat-value">${countBusui}</div>
+        </div>
 
       </div>
 
@@ -3723,15 +3813,31 @@ async function loadAdminData(type){
 
   try{
 
+    let fetchType = type;
+    let posyanduFilter = '';
+
+    if(type === 'posyandu_balita'){
+      fetchType = 'posyandu';
+      posyanduFilter = 'Balita';
+    } else if(type === 'posyandu_bumil'){
+      fetchType = 'posyandu';
+      posyanduFilter = 'Ibu Hamil';
+    } else if(type === 'posyandu_busui'){
+      fetchType = 'posyandu';
+      posyanduFilter = 'Ibu Menyusui';
+    }
+
+
     const result =
       await apiGet({
         action:'list',
-        type
+        type: fetchType,
+        all:'true'
       });
 
 
     setCachedRows(
-      type,
+      fetchType,
       result.rows || []
     );
 
@@ -3740,8 +3846,24 @@ async function loadAdminData(type){
       result.rows || [];
 
 
+    if(posyanduFilter){
+      rows = rows.filter(r => String(r.Kategori || '') === posyanduFilter);
+    }
+
+
+    // Filter pencarian admin berdasarkan Nama atau NIK
+    if(searchQuery.trim()){
+      const q = searchQuery.toLowerCase();
+      rows = rows.filter(r => {
+        const nama = String(r.Nama || '').toLowerCase();
+        const nik = String(r.NIK || '').toLowerCase();
+        return nama.includes(q) || nik.includes(q);
+      });
+    }
+
+
     const fields =
-      fieldsFor(type);
+      fieldsFor(fetchType);
 
 
     area.innerHTML = `
@@ -3749,12 +3871,16 @@ async function loadAdminData(type){
       <div class="toolbar"
            style="padding:0 0 12px">
 
-        <button
-          class="btn btn-success btn-sm"
-          onclick="exportExcel('${type}')"
-        >
-          Download Excel
-        </button>
+        <div class="toolbar-left" style="width:100%;">
+          <input
+            type="text"
+            class="form-control"
+            style="width:100%; max-width:250px; padding:7px 11px;"
+            placeholder="Cari Nama atau NIK..."
+            value="${esc(searchQuery)}"
+            oninput="onAdminSearchInput(event)"
+          >
+        </div>
 
       </div>
 
@@ -3772,7 +3898,7 @@ async function loadAdminData(type){
               <th>Unit</th>
 
               ${
-                type === 'posyandu'
+                fetchType === 'posyandu'
                 ? '<th>Kategori</th>'
                 : ''
               }
@@ -3803,7 +3929,7 @@ async function loadAdminData(type){
                     </td>
 
                     ${
-                      type === 'posyandu'
+                      fetchType === 'posyandu'
                       ? `<td>
                           ${esc(r.Kategori || '')}
                         </td>`
@@ -3912,6 +4038,12 @@ async function loadAdminData(type){
 
   }
 
+}
+
+
+function onAdminSearchInput(e){
+  searchQuery = e.target.value;
+  loadAdminData(activeTab);
 }
 
 
