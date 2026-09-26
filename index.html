@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
 <title>SPPG Ogan Ilir Sungai Pinang III</title>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -10,349 +11,667 @@
 <style>
 :root{
   --navy:#071e49;
+  --navy2:#0c2d67;
   --green:#92d05d;
+  --green2:#73b83f;
   --blue:#b5e0ea;
   --gold:#d1b06c;
   --white:#fff;
   --bg:#f4f7fb;
-  --text:#172033;
-  --muted:#6b7280;
-  --danger:#dc3545;
-  --shadow:0 10px 30px rgba(7,30,73,.10);
+  --text:#1c2636;
+  --muted:#6d7788;
+  --border:#dfe5ee;
+  --danger:#d9534f;
+  --shadow:0 8px 28px rgba(7,30,73,.09);
   --radius:18px;
 }
 
-*{box-sizing:border-box}
-body{
+*{
+  box-sizing:border-box;
+}
+
+html,body{
   margin:0;
-  font-family:Arial,Helvetica,sans-serif;
+  padding:0;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
   background:var(--bg);
   color:var(--text);
 }
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
 
-.hidden{display:none!important}
+body{
+  min-height:100vh;
+}
 
-header{
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+#app{
+  min-height:100vh;
+}
+
+.header{
   position:sticky;
   top:0;
-  z-index:50;
+  z-index:100;
   background:var(--navy);
-  color:#fff;
-  padding:15px 22px;
+  color:white;
   box-shadow:0 3px 15px rgba(0,0,0,.15);
 }
+
 .header-inner{
   max-width:1400px;
   margin:auto;
+  padding:15px 20px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   gap:15px;
 }
+
 .brand{
-  font-weight:800;
-  letter-spacing:.5px;
+  display:flex;
+  align-items:center;
+  gap:13px;
 }
-.brand small{
-  display:block;
+
+.logo{
+  width:48px;
+  height:48px;
+  border-radius:13px;
+  background:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--navy);
+  font-weight:900;
+  font-size:14px;
+}
+
+.brand-title{
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:.2px;
+}
+
+.brand-sub{
   font-size:12px;
   opacity:.75;
-  margin-top:4px;
+  margin-top:3px;
 }
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.user-pill{
+  background:rgba(255,255,255,.12);
+  padding:9px 13px;
+  border-radius:30px;
+  font-size:13px;
+}
+
 .container{
   max-width:1400px;
   margin:auto;
-  padding:22px;
+  padding:24px 20px 50px;
 }
 
 .card{
-  background:#fff;
+  background:white;
+  border:1px solid var(--border);
   border-radius:var(--radius);
-  padding:20px;
   box-shadow:var(--shadow);
-  margin-bottom:20px;
 }
+
 .login-wrap{
   min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
   padding:20px;
+  background:
+    radial-gradient(circle at top right,rgba(146,208,93,.25),transparent 35%),
+    linear-gradient(135deg,#eef5ff,#f7fbf4);
 }
+
 .login-card{
-  width:min(430px,100%);
+  width:100%;
+  max-width:430px;
+  padding:30px;
 }
-.logo-box{
-  text-align:center;
-  margin-bottom:25px;
-}
-.logo-circle{
-  width:80px;
-  height:80px;
-  margin:auto;
-  border-radius:50%;
+
+.login-logo{
+  width:75px;
+  height:75px;
+  margin:0 auto 18px;
+  border-radius:22px;
   background:var(--navy);
-  color:#fff;
+  color:white;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   font-weight:900;
+  font-size:20px;
+}
+
+.login-title{
+  text-align:center;
+  color:var(--navy);
+  margin:0;
   font-size:24px;
 }
 
-h1,h2,h3{margin-top:0}
-h2{font-size:22px}
-h3{font-size:17px}
+.login-sub{
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+  margin:8px 0 25px;
+}
 
-label{
+.form-group{
+  margin-bottom:15px;
+}
+
+.form-label{
   display:block;
+  margin-bottom:7px;
   font-size:13px;
   font-weight:700;
-  margin-bottom:7px;
 }
-input,select,textarea{
+
+.form-control{
   width:100%;
-  border:1px solid #d7dce5;
+  border:1px solid var(--border);
   border-radius:12px;
   padding:11px 13px;
-  background:#fff;
   outline:none;
+  background:white;
+  transition:.2s;
 }
-input:focus,select:focus,textarea:focus{
+
+.form-control:focus{
   border-color:var(--navy);
   box-shadow:0 0 0 3px rgba(7,30,73,.08);
 }
-textarea{min-height:100px;resize:vertical}
 
-.form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:15px;
+textarea.form-control{
+  min-height:110px;
+  resize:vertical;
 }
-.form-group.full{grid-column:1/-1}
 
 .btn{
   border:0;
-  border-radius:12px;
+  border-radius:11px;
   padding:10px 15px;
   font-weight:700;
-  background:#e9edf3;
-  color:var(--text);
-}
-.btn:hover{filter:brightness(.97)}
-.btn-primary{background:var(--navy);color:#fff}
-.btn-success{background:var(--green);color:#173000}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-gold{background:var(--gold);color:#fff}
-.btn-blue{background:var(--blue);color:#073342}
-.btn-light{background:#f1f3f6}
-.btn-sm{padding:7px 10px;font-size:12px}
-
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:9px;
-}
-
-.top-actions{
-  display:flex;
-  justify-content:space-between;
+  transition:.2s;
+  display:inline-flex;
   align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
+  justify-content:center;
+  gap:7px;
+}
+
+.btn:hover{
+  transform:translateY(-1px);
+}
+
+.btn-primary{
+  background:var(--navy);
+  color:white;
+}
+
+.btn-success{
+  background:var(--green);
+  color:#173400;
+}
+
+.btn-danger{
+  background:var(--danger);
+  color:white;
+}
+
+.btn-light{
+  background:#edf1f6;
+  color:#283449;
+}
+
+.btn-gold{
+  background:var(--gold);
+  color:white;
+}
+
+.btn-sm{
+  padding:7px 10px;
+  font-size:12px;
+}
+
+.full{
+  width:100%;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.page-title{
+  margin:0;
+  color:var(--navy);
+  font-size:25px;
+}
+
+.page-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:4px;
 }
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:15px;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
+  margin-bottom:20px;
 }
+
 .stat{
-  border-radius:16px;
-  padding:18px;
-  color:#fff;
-  background:var(--navy);
+  padding:19px;
+  position:relative;
+  overflow:hidden;
 }
-.stat:nth-child(2){background:#27834a}
-.stat:nth-child(3){background:#387f99}
-.stat:nth-child(4){background:#8b6c2c}
-.stat .num{
-  font-size:30px;
+
+.stat:after{
+  content:"";
+  position:absolute;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  background:rgba(146,208,93,.15);
+  right:-20px;
+  top:-20px;
+}
+
+.stat-label{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.stat-value{
+  font-size:28px;
   font-weight:900;
+  color:var(--navy);
   margin-top:5px;
+}
+
+.announcement{
+  padding:18px;
+  margin-bottom:20px;
+}
+
+.announcement-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.announcement-title{
+  color:var(--navy);
+  font-size:17px;
+  font-weight:800;
+}
+
+.announcement-item{
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.announcement-item:last-child{
+  border-bottom:0;
+}
+
+.announcement-item h4{
+  margin:0 0 5px;
+}
+
+.announcement-date{
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+
+.announcement-content{
+  white-space:pre-wrap;
+  font-size:13px;
+  line-height:1.6;
 }
 
 .tabs{
   display:flex;
+  gap:7px;
   flex-wrap:wrap;
-  gap:8px;
   margin-bottom:15px;
 }
+
 .tab{
   border:0;
-  padding:9px 14px;
-  border-radius:20px;
-  background:#e9edf3;
+  background:#e8edf4;
+  color:#445066;
+  padding:10px 15px;
+  border-radius:10px;
   font-weight:700;
 }
+
 .tab.active{
   background:var(--navy);
-  color:#fff;
+  color:white;
+}
+
+.toolbar{
+  padding:16px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.toolbar-left,
+.toolbar-right{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.table-card{
+  overflow:hidden;
+}
+
+.table-wrap{
+  width:100%;
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px;
+}
+
+th{
+  background:var(--navy);
+  color:white;
+  padding:11px;
+  text-align:left;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+td{
+  padding:10px 11px;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+  vertical-align:middle;
+}
+
+tr:hover td{
+  background:#fafcff;
+}
+
+.actions{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.badge-green{
+  background:#e4f6d7;
+  color:#37751a;
+}
+
+.badge-blue{
+  background:#e4f3f7;
+  color:#176175;
+}
+
+.badge-gold{
+  background:#f6eedc;
+  color:#785c20;
+}
+
+.badge-red{
+  background:#fde5e4;
+  color:#9d2f2b;
 }
 
 .category-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:12px;
-  margin-bottom:18px;
+  margin-bottom:15px;
 }
+
 .category{
-  border:2px solid #e2e7ee;
-  border-radius:15px;
-  padding:15px;
-  background:#fff;
-  text-align:center;
-  cursor:pointer;
-  font-weight:800;
-}
-.category.active{
-  border-color:var(--green);
-  background:#f2fbe9;
-}
-
-.table-wrap{
-  overflow:auto;
-  border:1px solid #e7ebf0;
-  border-radius:14px;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:800px;
-}
-th,td{
-  border-bottom:1px solid #edf0f4;
-  padding:10px 12px;
+  border:2px solid var(--border);
+  background:white;
+  border-radius:16px;
+  padding:17px;
   text-align:left;
-  font-size:13px;
-  vertical-align:middle;
+  cursor:pointer;
 }
-th{
-  background:#f7f9fc;
-  color:#475569;
-}
-tr:hover td{background:#fafcff}
 
-.badge{
-  display:inline-block;
-  padding:5px 9px;
-  border-radius:20px;
-  font-size:11px;
+.category.active{
+  border-color:var(--green2);
+  background:#f3faed;
+}
+
+.category-title{
   font-weight:800;
-  background:#eaf0f7;
+  color:var(--navy);
 }
-.badge-green{background:#e8f7df;color:#276000}
-.badge-red{background:#fde8ea;color:#9d1623}
 
-.announcement{
-  border-left:5px solid var(--green);
-  background:#f8fcf4;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:10px;
+.category-count{
+  font-size:25px;
+  font-weight:900;
+  margin-top:5px;
 }
-.announcement .date{
+
+.empty{
+  text-align:center;
+  padding:35px 15px;
   color:var(--muted);
-  font-size:12px;
 }
-.announcement h3{margin-bottom:7px}
+
+.loading{
+  text-align:center;
+  padding:25px;
+  color:var(--muted);
+}
 
 .modal{
   position:fixed;
   inset:0;
-  z-index:100;
-  background:rgba(0,0,0,.45);
-  display:none;
+  z-index:1000;
+  background:rgba(0,0,0,.48);
+  display:flex;
   align-items:center;
   justify-content:center;
-  padding:15px;
+  padding:20px;
 }
-.modal.show{display:flex}
+
 .modal-box{
-  width:min(720px,100%);
+  width:100%;
+  max-width:620px;
   max-height:90vh;
   overflow:auto;
-  background:#fff;
+  background:white;
   border-radius:20px;
-  padding:22px;
+  box-shadow:0 25px 80px rgba(0,0,0,.25);
 }
+
 .modal-head{
+  padding:18px 20px;
+  border-bottom:1px solid var(--border);
   display:flex;
   justify-content:space-between;
-  gap:15px;
   align-items:center;
+}
+
+.modal-title{
+  margin:0;
+  color:var(--navy);
+  font-size:18px;
+}
+
+.modal-body{
+  padding:20px;
+}
+
+.modal-foot{
+  padding:15px 20px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+.close{
+  border:0;
+  background:#edf1f6;
+  border-radius:10px;
+  width:34px;
+  height:34px;
+  font-size:18px;
+}
+
+.admin-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+.admin-panel{
+  padding:18px;
+}
+
+.section-title{
+  color:var(--navy);
+  margin:0 0 15px;
+  font-size:17px;
+}
+
+.notice{
+  padding:11px 13px;
+  border-radius:10px;
+  font-size:13px;
   margin-bottom:15px;
 }
 
-.loading{
-  position:fixed;
-  inset:0;
-  background:rgba(255,255,255,.65);
-  z-index:200;
-  display:none;
-  align-items:center;
-  justify-content:center;
+.notice-danger{
+  background:#fde7e6;
+  color:#9c2e2a;
 }
-.loading.show{display:flex}
-.spinner{
-  width:45px;
-  height:45px;
-  border:5px solid #ddd;
-  border-top-color:var(--navy);
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
 
-.toast{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  z-index:300;
-  padding:13px 17px;
-  background:var(--navy);
-  color:#fff;
-  border-radius:12px;
-  box-shadow:var(--shadow);
-  display:none;
-  max-width:350px;
+.notice-success{
+  background:#e8f7dc;
+  color:#34741a;
 }
-.toast.show{display:block}
-.toast.error{background:var(--danger)}
 
-.empty{
+.hidden-file{
+  display:none;
+}
+
+.footer{
   text-align:center;
-  padding:30px;
   color:var(--muted);
+  font-size:11px;
+  padding:30px 10px;
 }
 
-.admin-menu{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
+@media(max-width:1000px){
+  .stats{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .admin-grid{
+    grid-template-columns:1fr;
+  }
 }
 
-@media(max-width:900px){
-  .stats{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:650px){
-  .container{padding:13px}
-  .form-grid{grid-template-columns:1fr}
-  .stats{grid-template-columns:1fr 1fr}
-  .category-grid{grid-template-columns:1fr}
-  .header-inner{align-items:flex-start}
+@media(max-width:700px){
+  .header-inner{
+    padding:12px;
+  }
+
+  .brand-title{
+    font-size:14px;
+  }
+
+  .brand-sub{
+    font-size:10px;
+  }
+
+  .user-pill{
+    display:none;
+  }
+
+  .container{
+    padding:16px 12px 35px;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .category-grid{
+    grid-template-columns:1fr;
+  }
+
+  .toolbar{
+    align-items:stretch;
+  }
+
+  .toolbar-left,
+  .toolbar-right{
+    width:100%;
+  }
+
+  .toolbar .btn{
+    flex:1;
+  }
+
+  .topbar{
+    align-items:flex-start;
+  }
+
+  .page-title{
+    font-size:20px;
+  }
 }
 </style>
 </head>
@@ -361,17 +680,8 @@ tr:hover td{background:#fafcff}
 
 <div id="app"></div>
 
-<div id="loading" class="loading">
-  <div class="spinner"></div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<div id="modal" class="modal">
-  <div class="modal-box" id="modalBox"></div>
-</div>
-
 <script>
+
 /* =========================================================
    KONFIGURASI
 ========================================================= */
@@ -379,1654 +689,3601 @@ tr:hover td{background:#fafcff}
 const API_URL =
 'https://script.google.com/macros/s/AKfycbztnSkQofFu6kycfpE1oGxVjPxcgn2hi6Oj3fGOX4w6wXmwilBSpRXatcMYfMUn03tZYw/exec';
 
-const SESSION_KEY='sppg_session';
+const SESSION_KEY = 'sppg_session';
 
-let session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
-let activeTab='';
-let posyanduCategory='Balita';
-let editRow=null;
+let session =
+  JSON.parse(
+    localStorage.getItem(SESSION_KEY) || 'null'
+  );
 
-const cache={};
+let activeTab = 'siswa';
+
+let posyanduCategory = 'Balita';
+
+let dataCache = {};
+
+let announcementCache = [];
+
 
 /* =========================================================
-   HELPER
+   API
 ========================================================= */
 
-function esc(v){
-  return String(v??'')
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#039;");
-}
+async function apiGet(params = {}) {
 
-function showLoading(v=true){
-  document.getElementById('loading').classList.toggle('show',v);
-}
+  const query = new URLSearchParams(params);
 
-function toast(msg,error=false){
-  const el=document.getElementById('toast');
-  el.textContent=msg;
-  el.className='toast show'+(error?' error':'');
-  setTimeout(()=>el.className='toast',3000);
-}
+  if (session?.token) {
+    query.set('token', session.token);
+  }
 
-function saveSession(){
-  localStorage.setItem(SESSION_KEY,JSON.stringify(session));
-}
+  const response =
+    await fetch(
+      API_URL + '?' + query.toString()
+    );
 
-function logout(){
-  localStorage.removeItem(SESSION_KEY);
-  session=null;
-  render();
-}
+  const data =
+    await response.json();
 
-async function apiGet(params={}){
-  const p=new URLSearchParams(params);
-  if(session?.token)p.set('token',session.token);
+  if (!data.ok) {
+    throw new Error(
+      data.error || 'Terjadi kesalahan'
+    );
+  }
 
-  const r=await fetch(API_URL+'?'+p.toString());
-  const data=await r.json();
-
-  if(!data.ok)throw new Error(data.message||'Terjadi kesalahan');
   return data;
+
 }
 
-async function apiPost(data={}){
-  if(session?.token)data.token=session.token;
 
-  const r=await fetch(API_URL,{
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(data)
-  });
+async function apiPost(payload = {}) {
 
-  const result=await r.json();
+  const body = {
+    ...payload
+  };
 
-  if(!result.ok)throw new Error(result.message||'Terjadi kesalahan');
-  return result;
+  if (session?.token) {
+    body.token = session.token;
+  }
+
+  const response =
+    await fetch(
+      API_URL,
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'text/plain;charset=utf-8'
+        },
+        body:JSON.stringify(body)
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (!data.ok) {
+    throw new Error(
+      data.error || 'Terjadi kesalahan'
+    );
+  }
+
+  return data;
+
 }
 
-function normalizeGender(v){
-  const x=String(v||'').trim().toUpperCase();
-
-  if(['L','LAKI','LAKI-LAKI','LAKI LAKI','PRIA','M'].includes(x))
-    return 'Laki-laki';
-
-  if(['P','PEREMPUAN','WANITA','W'].includes(x))
-    return 'Perempuan';
-
-  return String(v||'').trim();
-}
-
-function formatDate(v){
-  if(!v)return '';
-
-  const d=new Date(v);
-  if(isNaN(d))return v;
-
-  return d.toLocaleDateString('id-ID');
-}
 
 /* =========================================================
-   FIELD
+   HELPERS
+========================================================= */
+
+function esc(value){
+
+  return String(value ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+
+}
+
+
+function toast(message){
+
+  alert(message);
+
+}
+
+
+function saveSession(){
+
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify(session)
+  );
+
+}
+
+
+function clearSession(){
+
+  session = null;
+
+  localStorage.removeItem(
+    SESSION_KEY
+  );
+
+  dataCache = {};
+
+  render();
+
+}
+
+
+function normalizeGenderFE(value){
+
+  const v =
+    String(value || '')
+      .trim()
+      .toUpperCase();
+
+  if(
+    v === 'L' ||
+    v === 'LAKI' ||
+    v === 'LAKI-LAKI' ||
+    v === 'LAKI LAKI' ||
+    v === 'PRIA'
+  ){
+    return 'Laki-laki';
+  }
+
+  if(
+    v === 'P' ||
+    v === 'PEREMPUAN' ||
+    v === 'WANITA'
+  ){
+    return 'Perempuan';
+  }
+
+  return '';
+}
+
+
+function formatDate(value){
+
+  if(!value) return '';
+
+  const d = new Date(value);
+
+  if(isNaN(d.getTime())){
+    return value;
+  }
+
+  return d.toLocaleDateString(
+    'id-ID',
+    {
+      day:'2-digit',
+      month:'2-digit',
+      year:'numeric'
+    }
+  );
+
+}
+
+
+function formatDateTime(value){
+
+  if(!value) return '';
+
+  const d = new Date(value);
+
+  if(isNaN(d.getTime())){
+    return value;
+  }
+
+  return d.toLocaleString(
+    'id-ID',
+    {
+      dateStyle:'medium',
+      timeStyle:'short'
+    }
+  );
+
+}
+
+
+/* =========================================================
+   FIELD DEFINITIONS
 ========================================================= */
 
 function fieldsFor(type){
-  const common=[
-    ['nama','Nama'],
-    ['nik','NIK'],
-    ['tgl','Tanggal Lahir']
-  ];
 
-  if(type==='siswa'){
+  if(type === 'siswa'){
+
     return [
-      ...common,
-      ['nisn','NISN'],
-      ['jenisKelamin','Jenis Kelamin']
+      {
+        key:'nama',
+        label:'Nama',
+        type:'text',
+        required:true
+      },
+      {
+        key:'nisn',
+        label:'NISN',
+        type:'text',
+        required:true,
+        numeric:true,
+        maxLength:10
+      },
+      {
+        key:'nik',
+        label:'NIK',
+        type:'text',
+        required:true,
+        numeric:true,
+        maxLength:16
+      },
+      {
+        key:'tgl',
+        label:'Tanggal Lahir',
+        type:'date',
+        required:true
+      },
+      {
+        key:'jenisKelamin',
+        label:'Jenis Kelamin',
+        type:'gender',
+        required:true
+      }
     ];
+
   }
 
-  if(type==='guru'){
+
+  if(
+    type === 'guru' ||
+    type === 'tendik' ||
+    type === 'penjaga'
+  ){
+
     return [
-      ...common,
-      ['jenisKelamin','Jenis Kelamin']
+      {
+        key:'nama',
+        label:'Nama',
+        type:'text',
+        required:true
+      },
+      {
+        key:'nik',
+        label:'NIK',
+        type:'text',
+        required:true,
+        numeric:true,
+        maxLength:16
+      },
+      {
+        key:'tgl',
+        label:'Tanggal Lahir',
+        type:'date',
+        required:true
+      },
+      {
+        key:'jenisKelamin',
+        label:'Jenis Kelamin',
+        type:'gender',
+        required:true
+      }
     ];
+
   }
 
-  if(type==='tendik'){
+
+  if(type === 'posyandu'){
+
     return [
-      ...common,
-      ['jenisKelamin','Jenis Kelamin']
+      {
+        key:'nama',
+        label:'Nama',
+        type:'text',
+        required:true
+      },
+      {
+        key:'nik',
+        label:'NIK',
+        type:'text',
+        required:true,
+        numeric:true,
+        maxLength:16
+      },
+      {
+        key:'tgl',
+        label:'Tanggal Lahir',
+        type:'date',
+        required:true
+      },
+      {
+        key:'jenisKelamin',
+        label:'Jenis Kelamin',
+        type:'gender',
+        required:true
+      },
+      {
+        key:'usiaKehamilan',
+        label:'Usia Kehamilan / Trimester',
+        type:'pregnancy',
+        required:false
+      }
     ];
+
   }
 
-  if(type==='penjaga'){
-    return [
-      ...common,
-      ['jenisKelamin','Jenis Kelamin']
-    ];
-  }
+  return [];
 
-  if(type==='posyandu'){
-    return [
-      ['kategori','Kategori'],
-      ...common,
-      ['jenisKelamin','Jenis Kelamin'],
-      ['usiaKehamilan','Usia Kehamilan / Trimester']
-    ];
-  }
-
-  return common;
 }
 
-function typeLabel(type){
-  return {
-    siswa:'Siswa',
-    guru:'Guru',
-    tendik:'Tendik',
-    penjaga:'Penjaga Sekolah',
-    posyandu:'Posyandu'
-  }[type]||type;
-}
 
 /* =========================================================
    VALIDASI
 ========================================================= */
 
 function validateRow(obj,type){
-  if(!obj.nama?.trim())
-    return 'Nama wajib diisi.';
 
-  if(!/^\d{16}$/.test(String(obj.nik||'')))
-    return 'NIK harus tepat 16 angka.';
+  const nama =
+    String(obj.nama || '').trim();
 
-  if(type==='siswa'){
-    if(!/^\d{5,10}$/.test(String(obj.nisn||'')))
-      return 'NISN harus berupa 5–10 angka.';
+  if(!nama){
+    return 'Nama wajib diisi';
   }
 
-  if(!obj.tgl)
-    return 'Tanggal lahir wajib diisi.';
 
-  const d=new Date(obj.tgl);
-  if(isNaN(d))
-    return 'Tanggal lahir tidak valid.';
+  const nik =
+    String(obj.nik || '')
+      .replace(/\D/g,'');
 
-  if(d>new Date())
-    return 'Tanggal lahir tidak boleh lebih besar dari hari ini.';
+  if(!/^\d{16}$/.test(nik)){
+    return 'NIK harus tepat 16 digit';
+  }
 
-  if(!['siswa','guru','tendik','penjaga'].includes(type) &&
-     type!=='posyandu')
-    return 'Jenis data tidak valid.';
 
-  if(!obj.jenisKelamin)
-    return 'Jenis kelamin wajib dipilih.';
+  if(type === 'siswa'){
 
-  obj.jenisKelamin=normalizeGender(obj.jenisKelamin);
+    const nisn =
+      String(obj.nisn || '')
+        .replace(/\D/g,'');
 
-  if(!['Laki-laki','Perempuan'].includes(obj.jenisKelamin))
-    return 'Jenis kelamin harus Laki-laki atau Perempuan.';
-
-  if(type==='posyandu'){
-    if(!['Balita','Ibu Hamil','Ibu Menyusui'].includes(obj.kategori))
-      return 'Kategori Posyandu tidak valid.';
-
-    if(obj.kategori==='Ibu Hamil'){
-      const usia=String(obj.usiaKehamilan||'').trim();
-
-      if(!/^[123]$/.test(usia))
-        return 'Usia kehamilan harus angka 1, 2, atau 3.';
-    }else{
-      obj.usiaKehamilan='';
+    if(!/^\d{5,10}$/.test(nisn)){
+      return 'NISN harus 5-10 digit';
     }
+
   }
+
+
+  if(!obj.tgl){
+    return 'Tanggal lahir wajib diisi';
+  }
+
+
+  const d =
+    new Date(obj.tgl);
+
+  if(isNaN(d.getTime())){
+    return 'Tanggal lahir tidak valid';
+  }
+
+
+  const today =
+    new Date();
+
+  today.setHours(
+    23,59,59,999
+  );
+
+  if(d > today){
+    return 'Tanggal lahir tidak boleh di masa depan';
+  }
+
+
+  if(
+    type === 'siswa' ||
+    type === 'guru' ||
+    type === 'tendik' ||
+    type === 'penjaga' ||
+    type === 'posyandu'
+  ){
+
+    if(
+      obj.jenisKelamin !== 'Laki-laki' &&
+      obj.jenisKelamin !== 'Perempuan'
+    ){
+
+      return 'Jenis kelamin wajib dipilih';
+
+    }
+
+  }
+
+
+  if(type === 'posyandu'){
+
+    if(!obj.kategori){
+      return 'Kategori Posyandu wajib dipilih';
+    }
+
+
+    if(obj.kategori === 'Ibu Hamil'){
+
+      if(
+        !/^[123]$/.test(
+          String(
+            obj.usiaKehamilan || ''
+          )
+        )
+      ){
+
+        return 'Usia kehamilan harus 1, 2, atau 3';
+
+      }
+
+    }
+
+  }
+
 
   return '';
+
 }
 
-/* =========================================================
-   CACHE
-========================================================= */
-
-function cacheKey(type){
-  return [
-    session?.unitName||'',
-    session?.unitType||'',
-    type
-  ].join('|');
-}
-
-function getCached(type){
-  return cache[cacheKey(type)]||null;
-}
-
-function setCached(type,rows){
-  cache[cacheKey(type)]=rows||[];
-}
-
-function clearCache(){
-  Object.keys(cache).forEach(k=>delete cache[k]);
-}
 
 /* =========================================================
    RENDER
 ========================================================= */
 
 function render(){
+
   if(!session){
+
     renderLogin();
+
     return;
+
   }
 
-  if(session.role==='admin'){
+
+  if(session.role === 'admin'){
+
     renderAdmin();
+
     return;
+
   }
+
 
   renderUnit();
+
 }
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
 
 function renderLogin(){
-  document.getElementById('app').innerHTML=`
-  <div class="login-wrap">
-    <div class="card login-card">
-      <div class="logo-box">
-        <div class="logo-circle">SPPG</div>
-        <h2 style="margin:15px 0 5px">
-          SPPG Ogan Ilir Sungai Pinang III
-        </h2>
-        <div style="color:#6b7280">
-          Sistem Data Penerima Manfaat
+
+  document.getElementById('app').innerHTML = `
+
+    <div class="login-wrap">
+
+      <div class="card login-card">
+
+        <div class="login-logo">
+          SPPG
         </div>
+
+        <h1 class="login-title">
+          SPPG Ogan Ilir
+        </h1>
+
+        <div class="login-sub">
+          Sungai Pinang III
+        </div>
+
+        <div id="loginNotice"></div>
+
+        <form onsubmit="doLogin(event)">
+
+          <div class="form-group">
+
+            <label class="form-label">
+              Username
+            </label>
+
+            <input
+              id="loginUsername"
+              class="form-control"
+              autocomplete="username"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label class="form-label">
+              Password
+            </label>
+
+            <input
+              id="loginPassword"
+              type="password"
+              class="form-control"
+              autocomplete="current-password"
+              required
+            >
+
+          </div>
+
+
+          <button
+            class="btn btn-primary full"
+            type="submit"
+          >
+            Masuk
+          </button>
+
+        </form>
+
       </div>
 
-      <form onsubmit="doLogin(event)">
-        <div style="margin-bottom:14px">
-          <label>Username</label>
-          <input id="loginUser" required autocomplete="username">
-        </div>
-
-        <div style="margin-bottom:18px">
-          <label>Password</label>
-          <input id="loginPass" type="password" required autocomplete="current-password">
-        </div>
-
-        <button class="btn btn-primary" style="width:100%">
-          Masuk
-        </button>
-      </form>
     </div>
-  </div>`;
+
+  `;
+
 }
 
-async function doLogin(e){
-  e.preventDefault();
+
+async function doLogin(event){
+
+  event.preventDefault();
+
+  const username =
+    document.getElementById(
+      'loginUsername'
+    ).value.trim();
+
+  const password =
+    document.getElementById(
+      'loginPassword'
+    ).value;
+
+
+  const notice =
+    document.getElementById(
+      'loginNotice'
+    );
+
+  notice.innerHTML =
+    '<div class="notice">Memproses login...</div>';
+
 
   try{
-    showLoading();
 
-    const data=await apiPost({
-      action:'login',
-      username:document.getElementById('loginUser').value.trim(),
-      password:document.getElementById('loginPass').value
-    });
+    const result =
+      await apiPost({
+        action:'login',
+        username,
+        password
+      });
 
-    session=data;
+
+    session = {
+      token:result.token,
+      role:result.user.role,
+      unitName:result.user.unitName,
+      unitType:result.user.unitType,
+      username:result.user.username
+    };
+
+
     saveSession();
+
     render();
 
   }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
+
+    notice.innerHTML =
+      `<div class="notice notice-danger">
+        ${esc(err.message)}
+      </div>`;
+
   }
+
 }
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+function header(){
+
+  return `
+
+    <header class="header">
+
+      <div class="header-inner">
+
+        <div class="brand">
+
+          <div class="logo">
+            SPPG
+          </div>
+
+          <div>
+
+            <div class="brand-title">
+              SPPG OGAN ILIR SUNGAI PINANG III
+            </div>
+
+            <div class="brand-sub">
+              Sistem Pendataan Penerima Manfaat
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+          <div class="user-pill">
+            ${esc(session.username || '')}
+          </div>
+
+          <button
+            class="btn btn-light btn-sm"
+            onclick="logout()"
+          >
+            Keluar
+          </button>
+
+        </div>
+
+      </div>
+
+    </header>
+
+  `;
+
+}
+
 
 /* =========================================================
    UNIT
 ========================================================= */
 
-async function renderUnit(){
-  const isPosyandu=session.unitType==='posyandu';
-
-  if(!activeTab){
-    activeTab=isPosyandu?'posyandu':'siswa';
-  }
-
-  document.getElementById('app').innerHTML=`
-  <header>
-    <div class="header-inner">
-      <div class="brand">
-        SPPG OGAN ILIR SUNGAI PINANG III
-        <small>${esc(session.unitName||'')}</small>
-      </div>
-
-      <button class="btn btn-light btn-sm" onclick="logout()">
-        Keluar
-      </button>
-    </div>
-  </header>
-
-  <main class="container">
-
-    <div class="card">
-      <div class="top-actions">
-        <div>
-          <h2 style="margin-bottom:5px">
-            ${esc(session.unitName||'')}
-          </h2>
-          <div style="color:#6b7280">
-            Data Penerima Manfaat
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn btn-primary" onclick="openProfile()">
-            Profil
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div id="announcementBox"></div>
-
-    <div class="card">
-      <div class="stats" id="unitStats"></div>
-    </div>
-
-    <div class="card">
-
-      <div class="tabs">
-        ${
-          isPosyandu
-          ? `<button class="tab active">Posyandu</button>`
-          : `
-            <button class="tab ${activeTab==='siswa'?'active':''}"
-              onclick="switchTab('siswa')">Siswa</button>
-
-            <button class="tab ${activeTab==='guru'?'active':''}"
-              onclick="switchTab('guru')">Guru</button>
-
-            <button class="tab ${activeTab==='tendik'?'active':''}"
-              onclick="switchTab('tendik')">Tendik</button>
-
-            <button class="tab ${activeTab==='penjaga'?'active':''}"
-              onclick="switchTab('penjaga')">Penjaga Sekolah</button>
-          `
-        }
-      </div>
-
-      ${
-        isPosyandu
-        ? `
-          <div class="category-grid">
-            ${['Balita','Ibu Hamil','Ibu Menyusui'].map(c=>`
-              <div class="category ${posyanduCategory===c?'active':''}"
-                   onclick="setCategory('${c}')">
-                ${c}
-              </div>
-            `).join('')}
-          </div>
-        `
-        :''
-      }
-
-      <div class="top-actions" style="margin-bottom:15px">
-        <h3 style="margin:0">${typeLabel(activeTab)}</h3>
-
-        <div class="actions">
-          <button class="btn btn-success" onclick="openForm()">
-            + Tambah
-          </button>
-
-          <button class="btn btn-blue" onclick="downloadTemplate()">
-            Template Excel
-          </button>
-
-          <label class="btn btn-gold">
-            Import Excel
-            <input
-              type="file"
-              accept=".xlsx,.xls"
-              onchange="importExcel(event)"
-              style="display:none">
-          </label>
-
-          <button class="btn btn-primary" onclick="exportExcel()">
-            Download Excel
-          </button>
-
-          <button class="btn btn-light" onclick="refreshTableData(activeTab)">
-            ↻ Refresh
-          </button>
-        </div>
-      </div>
-
-      <div id="tableArea"></div>
-    </div>
-
-  </main>`;
-
-  loadUnitData();
-  loadAnnouncements();
-}
-
-async function loadUnitData(){
-  const types=session.unitType==='posyandu'
-    ? ['posyandu']
-    : ['siswa','guru','tendik','penjaga'];
-
-  const stats=document.getElementById('unitStats');
-
-  if(!stats)return;
-
-  stats.innerHTML=types.map(t=>`
-    <div class="stat">
-      <div>${typeLabel(t)}</div>
-      <div class="num">...</div>
-    </div>
-  `).join('');
-
-  try{
-    const results=await Promise.all(
-      types.map(t=>apiGet({
-        action:'list',
-        type:t
-      }))
-    );
-
-    results.forEach((r,i)=>{
-      setCached(types[i],r.rows||[]);
-    });
-
-    stats.innerHTML=types.map(t=>`
-      <div class="stat">
-        <div>${typeLabel(t)}</div>
-        <div class="num">${(getCached(t)||[]).length}</div>
-      </div>
-    `).join('');
-
-    loadTable(activeTab);
-
-  }catch(err){
-    toast(err.message,true);
-  }
-}
-
-function switchTab(t){
-  activeTab=t;
-  renderUnit();
-}
-
-function setCategory(c){
-  posyanduCategory=c;
-  loadTable('posyandu');
-}
-
-async function refreshTableData(type){
-  try{
-    const r=await apiGet({
-      action:'list',
-      type
-    });
-
-    setCached(type,r.rows||[]);
-    loadTable(type);
-
-  }catch(err){
-    toast(err.message,true);
-  }
-}
-
-function loadTable(type){
-  const rows=getCached(type);
-
-  if(rows){
-    renderTable(type,rows);
-  }else{
-    document.getElementById('tableArea').innerHTML=
-      '<div class="empty">Memuat data...</div>';
-  }
-
-  refreshTableData(type).catch(()=>{});
-}
-
-function renderTable(type,rows){
-  let data=rows||[];
-
-  if(type==='posyandu'){
-    data=data.filter(x=>
-      (x.kategori||'')===posyanduCategory
-    );
-  }
-
-  const fields=fieldsFor(type);
-
-  if(!data.length){
-    document.getElementById('tableArea').innerHTML=
-      '<div class="empty">Belum ada data.</div>';
-    return;
-  }
-
-  document.getElementById('tableArea').innerHTML=`
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            ${fields.map(f=>`<th>${f[1]}</th>`).join('')}
-            <th>Aksi</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${data.map((r,i)=>`
-            <tr>
-              <td>${i+1}</td>
-
-              ${fields.map(([key])=>`
-                <td>
-                  ${key==='tgl'
-                    ? esc(formatDate(r[key]))
-                    : key==='jenisKelamin'
-                    ? `<span class="badge">${esc(r[key])}</span>`
-                    : esc(r[key]||'')
-                  }
-                </td>
-              `).join('')}
-
-              <td>
-                <div class="actions">
-                  <button class="btn btn-sm btn-primary"
-                    onclick='openForm(${JSON.stringify(r)})'>
-                    Edit
-                  </button>
-
-                  <button class="btn btn-sm btn-danger"
-                    onclick="deleteData('${type}',${Number(r._row||0)})">
-                    Hapus
-                  </button>
-                </div>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>`;
-}
-
-/* =========================================================
-   FORM DATA
-========================================================= */
-
-function openForm(row=null){
-  editRow=row;
-
-  const type=activeTab;
-  const fields=fieldsFor(type);
-
-  const html=`
-    <div class="modal-head">
-      <h2>${row?'Edit':'Tambah'} ${typeLabel(type)}</h2>
-      <button class="btn btn-light" onclick="closeModal()">✕</button>
-    </div>
-
-    <form onsubmit="saveData(event)">
-
-      <div class="form-grid">
-
-      ${
-        fields.map(([key,label])=>{
-          if(key==='kategori'){
-            return `
-              <div class="form-group">
-                <label>${label}</label>
-                <select id="f_${key}" onchange="togglePregnancy()">
-                  ${['Balita','Ibu Hamil','Ibu Menyusui'].map(x=>`
-                    <option ${((row?.kategori||posyanduCategory)===x)?'selected':''}>
-                      ${x}
-                    </option>
-                  `).join('')}
-                </select>
-              </div>`;
-          }
-
-          if(key==='jenisKelamin'){
-            return `
-              <div class="form-group">
-                <label>${label}</label>
-                <select id="f_${key}" required>
-                  <option value="">Pilih</option>
-                  <option value="Laki-laki"
-                    ${normalizeGender(row?.[key])==='Laki-laki'?'selected':''}>
-                    Laki-laki
-                  </option>
-                  <option value="Perempuan"
-                    ${normalizeGender(row?.[key])==='Perempuan'?'selected':''}>
-                    Perempuan
-                  </option>
-                </select>
-              </div>`;
-          }
-
-          if(key==='tgl'){
-            return `
-              <div class="form-group">
-                <label>${label}</label>
-                <input
-                  id="f_${key}"
-                  type="date"
-                  value="${esc(row?.[key]||'')}"
-                  required>
-              </div>`;
-          }
-
-          if(key==='usiaKehamilan'){
-            return `
-              <div class="form-group" id="pregnancyGroup">
-                <label>${label}</label>
-                <input
-                  id="f_${key}"
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[123]"
-                  maxlength="1"
-                  placeholder="1 / 2 / 3"
-                  value="${esc(row?.[key]||'')}"
-                  oninput="this.value=this.value.replace(/[^1-3]/g,'')">
-              </div>`;
-          }
-
-          return `
-            <div class="form-group">
-              <label>${label}</label>
-              <input
-                id="f_${key}"
-                value="${esc(row?.[key]||'')}"
-                ${['nama','nik','tgl'].includes(key)?'required':''}
-                ${key==='nik'?'maxlength="16" inputmode="numeric" oninput="this.value=this.value.replace(/\\D/g,\\'\\')"':''}
-                ${key==='nisn'?'maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/\\D/g,\\'\\')"':''}>
-            </div>`;
-        }).join('')
-      }
-
-      </div>
-
-      <div class="actions" style="margin-top:20px">
-        <button type="button" class="btn btn-light" onclick="closeModal()">
-          Batal
-        </button>
-
-        <button class="btn btn-primary">
-          Simpan
-        </button>
-      </div>
-    </form>`;
-
-  openModal(html);
-  togglePregnancy();
-}
-
-function togglePregnancy(){
-  const type=activeTab;
-  if(type!=='posyandu')return;
-
-  const cat=document.getElementById('f_kategori')?.value;
-  const group=document.getElementById('pregnancyGroup');
-
-  if(group){
-    group.style.display=cat==='Ibu Hamil'?'block':'none';
-  }
-}
-
-async function saveData(e){
-  e.preventDefault();
-
-  const type=activeTab;
-  const obj={};
-
-  fieldsFor(type).forEach(([key])=>{
-    const el=document.getElementById('f_'+key);
-    if(el)obj[key]=el.value.trim();
-  });
-
-  obj.jenisKelamin=normalizeGender(obj.jenisKelamin);
-
-  const error=validateRow(obj,type);
-
-  if(error){
-    toast(error,true);
-    return;
-  }
-
-  try{
-    showLoading();
-
-    if(editRow){
-      await apiPost({
-        action:'update',
-        type,
-        row:Number(editRow._row),
-        data:obj
-      });
-    }else{
-      await apiPost({
-        action:'add',
-        type,
-        data:obj
-      });
-    }
-
-    closeModal();
-    clearCache();
-    toast('Data berhasil disimpan.');
-    await loadUnitData();
-
-  }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
-  }
-}
-
-async function deleteData(type,row){
-  if(!row)return;
-
-  if(!confirm('Hapus data ini?'))return;
-
-  try{
-    showLoading();
-
-    await apiPost({
-      action:'delete',
-      type,
-      row
-    });
-
-    clearCache();
-    toast('Data berhasil dihapus.');
-    await loadUnitData();
-
-  }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
-  }
-}
-
-/* =========================================================
-   EXCEL
-========================================================= */
-
-function downloadTemplate(){
-  const type=activeTab;
-  const fields=fieldsFor(type);
-
-  const headers=fields.map(x=>x[1]);
-
-  const instruction=[
-    ['PETUNJUK'],
-    ['Jangan mengubah nama kolom.'],
-    ['NIK wajib 16 angka.'],
-    ['Jenis Kelamin: Laki-laki / Perempuan.'],
-    ...(type==='siswa'
-      ? [['NISN wajib 5–10 angka.']]
-      : []),
-    ...(type==='posyandu'
-      ? [
-          ['Kategori: Balita / Ibu Hamil / Ibu Menyusui.'],
-          ['Untuk Ibu Hamil, Usia Kehamilan hanya angka 1, 2, atau 3.']
-        ]
-      : [])
+function renderUnit(){
+
+  const isSchool =
+    String(session.unitType || '')
+      .toLowerCase()
+      .includes('sekolah');
+
+  const schoolTabs = [
+    ['siswa','Siswa'],
+    ['guru','Guru'],
+    ['tendik','Tendik'],
+    ['penjaga','Penjaga Sekolah']
   ];
 
-  const example={};
 
-  fields.forEach(([key])=>{
-    if(key==='nama')example[key]='CONTOH NAMA';
-    else if(key==='nik')example[key]='1671000000000001';
-    else if(key==='nisn')example[key]='1234567890';
-    else if(key==='tgl')example[key]='2015-01-01';
-    else if(key==='jenisKelamin')example[key]='Laki-laki';
-    else if(key==='kategori')example[key]=
-      type==='posyandu'?posyanduCategory:'';
-    else if(key==='usiaKehamilan')
-      example[key]=posyanduCategory==='Ibu Hamil'?'1':'';
-  });
+  let tabs = isSchool
+    ? schoolTabs
+    : [['posyandu','Posyandu']];
 
-  const row=fields.map(([key])=>example[key]||'');
 
-  const wb=XLSX.utils.book_new();
+  if(!tabs.some(x => x[0] === activeTab)){
+    activeTab = tabs[0][0];
+  }
 
-  const ws1=XLSX.utils.aoa_to_sheet(instruction);
-  const ws2=XLSX.utils.aoa_to_sheet([
-    headers,
-    row
-  ]);
 
-  XLSX.utils.book_append_sheet(wb,ws1,'Petunjuk');
-  XLSX.utils.book_append_sheet(wb,ws2,typeLabel(type));
+  document.getElementById('app').innerHTML = `
+
+    ${header()}
+
+    <main class="container">
+
+      <div class="topbar">
+
+        <div>
+
+          <h1 class="page-title">
+            ${esc(session.unitName || 'Instansi')}
+          </h1>
+
+          <div class="page-subtitle">
+            ${isSchool ? 'Instansi Sekolah' : 'Instansi Posyandu'}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div id="announcementArea"></div>
+
+
+      <div id="statsArea"></div>
+
+
+      <div class="tabs">
+
+        ${tabs.map(t => `
+
+          <button
+            class="tab ${activeTab === t[0] ? 'active' : ''}"
+            onclick="switchTab('${t[0]}')"
+          >
+            ${t[1]}
+          </button>
+
+        `).join('')}
+
+      </div>
+
+
+      ${
+        activeTab === 'posyandu'
+        ? renderPosyanduCategories()
+        : ''
+      }
+
+
+      <div id="tableArea"></div>
+
+    </main>
+
+
+    <div class="footer">
+      SPPG Ogan Ilir Sungai Pinang III
+    </div>
+
+  `;
+
+
+  loadAnnouncements();
+
+  loadStats(tabs.map(x => x[0]));
+
+  loadTable(activeTab);
+
+}
+
+
+function switchTab(type){
+
+  activeTab = type;
+
+  renderUnit();
+
+}
+
+
+/* =========================================================
+   POSYANDU CATEGORY
+========================================================= */
+
+function renderPosyanduCategories(){
+
+  const cats = [
+    'Balita',
+    'Ibu Hamil',
+    'Ibu Menyusui'
+  ];
+
+
+  return `
+
+    <div class="category-grid">
+
+      ${cats.map(cat => {
+
+        const count =
+          getCachedRows('posyandu')
+            .filter(
+              r => r.Kategori === cat
+            ).length;
+
+
+        return `
+
+          <button
+            class="category ${
+              posyanduCategory === cat
+              ? 'active'
+              : ''
+            }"
+            onclick="selectCategory('${cat}')"
+          >
+
+            <div class="category-title">
+              ${cat}
+            </div>
+
+            <div class="category-count">
+              ${count}
+            </div>
+
+          </button>
+
+        `;
+
+      }).join('')}
+
+    </div>
+
+  `;
+
+}
+
+
+function selectCategory(cat){
+
+  posyanduCategory = cat;
+
+  renderUnit();
+
+}
+
+
+/* =========================================================
+   CACHE
+========================================================= */
+
+function cacheKey(type){
+
+  return (
+    (session?.unitName || '') +
+    '|' +
+    type
+  );
+
+}
+
+
+function getCachedRows(type){
+
+  return dataCache[
+    cacheKey(type)
+  ] || [];
+
+}
+
+
+function setCachedRows(type,rows){
+
+  dataCache[
+    cacheKey(type)
+  ] = rows || [];
+
+}
+
+
+function clearDataCache(){
+
+  dataCache = {};
+
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+async function loadStats(types){
+
+  const area =
+    document.getElementById(
+      'statsArea'
+    );
+
+  if(!area) return;
+
+
+  const cached =
+    types.map(
+      t => getCachedRows(t).length
+    );
+
+
+  area.innerHTML = `
+
+    <div class="stats">
+
+      ${types.map((type,i) => `
+
+        <div class="card stat">
+
+          <div class="stat-label">
+            ${labelType(type)}
+          </div>
+
+          <div class="stat-value">
+            ${cached[i]}
+          </div>
+
+        </div>
+
+      `).join('')}
+
+    </div>
+
+  `;
+
+
+  try{
+
+    const results =
+      await Promise.all(
+        types.map(
+          type =>
+            apiGet({
+              action:'list',
+              type
+            })
+        )
+      );
+
+
+    results.forEach(
+      (result,i) => {
+
+        setCachedRows(
+          types[i],
+          result.rows || []
+        );
+
+      }
+    );
+
+
+    area.innerHTML = `
+
+      <div class="stats">
+
+        ${types.map(type => `
+
+          <div class="card stat">
+
+            <div class="stat-label">
+              ${labelType(type)}
+            </div>
+
+            <div class="stat-value">
+              ${getCachedRows(type).length}
+            </div>
+
+          </div>
+
+        `).join('')}
+
+      </div>
+
+    `;
+
+
+    if(activeTab === 'posyandu'){
+      const areaCat =
+        document.querySelector('.category-grid');
+
+      if(areaCat){
+        areaCat.outerHTML =
+          renderPosyanduCategories();
+      }
+    }
+
+
+  }catch(err){
+
+    console.error(err);
+
+  }
+
+}
+
+
+function labelType(type){
+
+  const map = {
+    siswa:'Siswa',
+    guru:'Guru',
+    tendik:'Tendik',
+    penjaga:'Penjaga Sekolah',
+    posyandu:'Posyandu'
+  };
+
+  return map[type] || type;
+
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+async function loadTable(type){
+
+  const area =
+    document.getElementById(
+      'tableArea'
+    );
+
+  if(!area) return;
+
+
+  const cached =
+    getCachedRows(type);
+
+
+  renderTable(
+    area,
+    type,
+    cached,
+    true
+  );
+
+
+  try{
+
+    const result =
+      await apiGet({
+        action:'list',
+        type
+      });
+
+
+    setCachedRows(
+      type,
+      result.rows || []
+    );
+
+
+    renderTable(
+      area,
+      type,
+      result.rows || [],
+      false
+    );
+
+  }catch(err){
+
+    area.innerHTML =
+      `<div class="notice notice-danger">
+        ${esc(err.message)}
+      </div>`;
+
+  }
+
+}
+
+
+function refreshTableData(type){
+
+  return loadTable(type);
+
+}
+
+
+/* =========================================================
+   RENDER TABLE
+========================================================= */
+
+function renderTable(
+  area,
+  type,
+  rows,
+  cached
+){
+
+  let filtered =
+    rows || [];
+
+
+  if(type === 'posyandu'){
+
+    filtered =
+      filtered.filter(
+        r =>
+          String(
+            r.Kategori || ''
+          ) === posyanduCategory
+      );
+
+  }
+
+
+  const fields =
+    fieldsFor(type);
+
+
+  area.innerHTML = `
+
+    <div class="card toolbar">
+
+      <div class="toolbar-left">
+
+        <button
+          class="btn btn-primary"
+          onclick="openForm('${type}')"
+        >
+          + Tambah
+        </button>
+
+        <button
+          class="btn btn-light"
+          onclick="downloadTemplate('${type}')"
+        >
+          Template Excel
+        </button>
+
+        <label class="btn btn-light">
+          Import Excel
+          <input
+            class="hidden-file"
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            onchange="importExcel(event,'${type}')"
+          >
+        </label>
+
+      </div>
+
+
+      <div class="toolbar-right">
+
+        <button
+          class="btn btn-success"
+          onclick="exportExcel('${type}')"
+        >
+          Download Excel
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="card table-card">
+
+      ${
+        !filtered.length
+
+        ? `
+          <div class="empty">
+            Belum ada data ${esc(labelType(type))}.
+          </div>
+        `
+
+        : `
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>No</th>
+
+                ${
+                  type === 'posyandu'
+                  ? '<th>Kategori</th>'
+                  : ''
+                }
+
+                ${fields.map(
+                  f => `<th>${esc(f.label)}</th>`
+                ).join('')}
+
+                <th>Aksi</th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody>
+
+              ${filtered.map(
+                (row,i) => {
+
+                  return `
+
+                    <tr>
+
+                      <td>${i + 1}</td>
+
+                      ${
+                        type === 'posyandu'
+                        ? `<td>
+                            <span class="badge badge-blue">
+                              ${esc(row.Kategori)}
+                            </span>
+                          </td>`
+                        : ''
+                      }
+
+                      ${fields.map(
+                        f => {
+
+                          let value =
+                            getRowValue(
+                              row,
+                              f.key
+                            );
+
+
+                          if(f.key === 'jenisKelamin'){
+
+                            value =
+                              normalizeGenderFE(
+                                value
+                              );
+
+                          }
+
+
+                          if(f.key === 'tgl'){
+
+                            value =
+                              formatDate(
+                                value
+                              );
+
+                          }
+
+
+                          if(
+                            f.key ===
+                            'usiaKehamilan'
+                          ){
+
+                            value =
+                              value
+                              ? 'Trimester ' +
+                                value
+                              : '-';
+
+                          }
+
+
+                          return `<td>
+                            ${esc(value || '-')}
+                          </td>`;
+
+                        }
+                      ).join('')}
+
+
+                      <td>
+
+                        <div class="actions">
+
+                          <button
+                            class="btn btn-light btn-sm"
+                            onclick='openForm(
+                              "${type}",
+                              ${JSON.stringify(row).replace(/'/g,"&#39;")}
+                            )'
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            class="btn btn-danger btn-sm"
+                            onclick="deleteRow('${type}',${Number(row._row)})"
+                          >
+                            Hapus
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  `;
+
+                }
+              ).join('')}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        `
+
+      }
+
+    </div>
+
+  `;
+
+}
+
+
+function getRowValue(row,key){
+
+  if(key === 'nama'){
+    return row.Nama || '';
+  }
+
+  if(key === 'nisn'){
+    return row.NISN || '';
+  }
+
+  if(key === 'nik'){
+    return row.NIK || '';
+  }
+
+  if(key === 'tgl'){
+    return row['Tanggal Lahir'] || '';
+  }
+
+  if(key === 'jenisKelamin'){
+    return row['Jenis Kelamin'] || '';
+  }
+
+  if(key === 'usiaKehamilan'){
+    return row['Usia Kehamilan'] || '';
+  }
+
+  return '';
+
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+function openForm(type,row=null){
+
+  const fields =
+    fieldsFor(type);
+
+
+  let html = `
+
+    <div class="modal" id="dataModal">
+
+      <div class="modal-box">
+
+        <div class="modal-head">
+
+          <h3 class="modal-title">
+            ${row ? 'Edit' : 'Tambah'}
+            ${esc(labelType(type))}
+          </h3>
+
+          <button
+            class="close"
+            onclick="closeModal()"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <form
+          onsubmit="saveForm(event,'${type}',${row ? Number(row._row) : 0})"
+        >
+
+          <div class="modal-body">
+
+  `;
+
+
+  if(type === 'posyandu'){
+
+    html += `
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Kategori
+        </label>
+
+        <select
+          class="form-control"
+          id="form_kategori"
+          required
+          onchange="togglePregnancyField()"
+        >
+
+          ${[
+            'Balita',
+            'Ibu Hamil',
+            'Ibu Menyusui'
+          ].map(cat => `
+
+            <option
+              value="${cat}"
+              ${
+                (
+                  row?.Kategori ||
+                  posyanduCategory
+                ) === cat
+                ? 'selected'
+                : ''
+              }
+            >
+              ${cat}
+            </option>
+
+          `).join('')}
+
+        </select>
+
+      </div>
+
+    `;
+
+  }
+
+
+  fields.forEach(
+    field => {
+
+      html += renderField(
+        field,
+        row,
+        type
+      );
+
+    }
+  );
+
+
+  html += `
+
+          </div>
+
+
+          <div class="modal-foot">
+
+            <button
+              type="button"
+              class="btn btn-light"
+              onclick="closeModal()"
+            >
+              Batal
+            </button>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+            >
+              Simpan
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    html
+  );
+
+
+  togglePregnancyField();
+
+}
+
+
+function renderField(field,row,type){
+
+  let value =
+    getRowValue(
+      row || {},
+      field.key
+    );
+
+
+  if(field.key === 'jenisKelamin'){
+    value =
+      normalizeGenderFE(value);
+  }
+
+
+  if(field.key === 'tgl' && value){
+
+    const d =
+      new Date(value);
+
+    if(!isNaN(d.getTime())){
+
+      value =
+        d.toISOString()
+         .slice(0,10);
+
+    }
+
+  }
+
+
+  if(field.type === 'gender'){
+
+    return `
+
+      <div class="form-group">
+
+        <label class="form-label">
+          ${field.label}
+        </label>
+
+        <select
+          class="form-control"
+          id="form_${field.key}"
+          required
+        >
+
+          <option value="">
+            Pilih Jenis Kelamin
+          </option>
+
+          <option
+            value="Laki-laki"
+            ${value === 'Laki-laki' ? 'selected' : ''}
+          >
+            Laki-laki
+          </option>
+
+          <option
+            value="Perempuan"
+            ${value === 'Perempuan' ? 'selected' : ''}
+          >
+            Perempuan
+          </option>
+
+        </select>
+
+      </div>
+
+    `;
+
+  }
+
+
+  if(field.type === 'pregnancy'){
+
+    return `
+
+      <div
+        class="form-group"
+        id="pregnancyGroup"
+      >
+
+        <label class="form-label">
+          ${field.label}
+        </label>
+
+        <input
+          id="form_usiaKehamilan"
+          class="form-control"
+          type="text"
+          inputmode="numeric"
+          pattern="[123]"
+          maxlength="1"
+          value="${esc(value)}"
+          placeholder="1 / 2 / 3"
+          oninput="this.value=this.value.replace(/[^123]/g,'').slice(0,1)"
+        >
+
+        <small style="color:#6d7788">
+          1 = Trimester 1,
+          2 = Trimester 2,
+          3 = Trimester 3
+        </small>
+
+      </div>
+
+    `;
+
+  }
+
+
+  return `
+
+    <div class="form-group">
+
+      <label class="form-label">
+        ${field.label}
+      </label>
+
+      <input
+        id="form_${field.key}"
+        class="form-control"
+        type="${field.type}"
+        value="${esc(value)}"
+        ${field.required ? 'required' : ''}
+        ${
+          field.numeric
+          ? 'inputmode="numeric"'
+          : ''
+        }
+        ${
+          field.maxLength
+          ? `maxlength="${field.maxLength}"`
+          : ''
+        }
+        ${
+          field.numeric
+          ? `oninput="this.value=this.value.replace(/\\D/g,'')"`
+          : ''
+        }
+      >
+
+    </div>
+
+  `;
+
+}
+
+
+function togglePregnancyField(){
+
+  const group =
+    document.getElementById(
+      'pregnancyGroup'
+    );
+
+  const category =
+    document.getElementById(
+      'form_kategori'
+    );
+
+
+  if(!group) return;
+
+
+  if(
+    category &&
+    category.value === 'Ibu Hamil'
+  ){
+
+    group.style.display =
+      'block';
+
+  }else{
+
+    group.style.display =
+      'none';
+
+  }
+
+}
+
+
+/* =========================================================
+   SAVE FORM
+========================================================= */
+
+async function saveForm(
+  event,
+  type,
+  rowNumber
+){
+
+  event.preventDefault();
+
+
+  const obj = {};
+
+
+  fieldsFor(type).forEach(
+    field => {
+
+      const el =
+        document.getElementById(
+          'form_' + field.key
+        );
+
+      if(el){
+
+        obj[field.key] =
+          el.value.trim();
+
+      }
+
+    }
+  );
+
+
+  if(type === 'posyandu'){
+
+    obj.kategori =
+      document.getElementById(
+        'form_kategori'
+      ).value;
+
+  }
+
+
+  obj.jenisKelamin =
+    normalizeGenderFE(
+      obj.jenisKelamin
+    );
+
+
+  const error =
+    validateRow(
+      obj,
+      type
+    );
+
+
+  if(error){
+
+    toast(error);
+
+    return;
+
+  }
+
+
+  try{
+
+    if(rowNumber){
+
+      await apiPost({
+
+        action:'update',
+
+        type,
+
+        row:rowNumber,
+
+        data:obj
+
+      });
+
+    }else{
+
+      await apiPost({
+
+        action:'add',
+
+        type,
+
+        data:obj
+
+      });
+
+    }
+
+
+    closeModal();
+
+    delete dataCache[
+      cacheKey(type)
+    ];
+
+    await loadTable(type);
+
+    toast(
+      rowNumber
+      ? 'Data berhasil diperbarui'
+      : 'Data berhasil ditambahkan'
+    );
+
+
+  }catch(err){
+
+    toast(err.message);
+
+  }
+
+}
+
+
+function closeModal(){
+
+  const modal =
+    document.getElementById(
+      'dataModal'
+    );
+
+  if(modal){
+    modal.remove();
+  }
+
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+async function deleteRow(
+  type,
+  row
+){
+
+  if(!confirm(
+    'Yakin ingin menghapus data ini?'
+  )){
+    return;
+  }
+
+
+  try{
+
+    await apiPost({
+
+      action:'delete',
+
+      type,
+
+      row
+
+    });
+
+
+    delete dataCache[
+      cacheKey(type)
+    ];
+
+
+    await loadTable(type);
+
+
+    toast(
+      'Data berhasil dihapus'
+    );
+
+
+  }catch(err){
+
+    toast(err.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   TEMPLATE EXCEL
+========================================================= */
+
+function downloadTemplate(type){
+
+  const wb =
+    XLSX.utils.book_new();
+
+
+  let headers = [];
+
+  let rows = [];
+
+
+  if(type === 'siswa'){
+
+    headers = [
+      'Nama',
+      'NISN',
+      'NIK',
+      'Tanggal Lahir',
+      'Jenis Kelamin'
+    ];
+
+    rows = [[
+      'Contoh Nama Siswa',
+      '1234567890',
+      '1600000000000001',
+      '2015-01-01',
+      'Laki-laki'
+    ]];
+
+  }
+
+
+  if(
+    type === 'guru' ||
+    type === 'tendik' ||
+    type === 'penjaga'
+  ){
+
+    headers = [
+      'Nama',
+      'NIK',
+      'Tanggal Lahir',
+      'Jenis Kelamin'
+    ];
+
+    rows = [[
+      'Contoh Nama',
+      '1600000000000001',
+      '1985-01-01',
+      'Laki-laki'
+    ]];
+
+  }
+
+
+  if(type === 'posyandu'){
+
+    headers = [
+      'Kategori',
+      'Nama',
+      'NIK',
+      'Tanggal Lahir',
+      'Jenis Kelamin',
+      'Usia Kehamilan'
+    ];
+
+    rows = [
+
+      [
+        'Balita',
+        'Contoh Balita',
+        '1600000000000001',
+        '2022-01-01',
+        'Laki-laki',
+        ''
+      ],
+
+      [
+        'Ibu Hamil',
+        'Contoh Ibu Hamil',
+        '1600000000000002',
+        '1995-01-01',
+        'Perempuan',
+        '2'
+      ]
+
+    ];
+
+  }
+
+
+  const ws =
+    XLSX.utils.aoa_to_sheet([
+      headers,
+      ...rows
+    ]);
+
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    labelType(type)
+  );
+
 
   XLSX.writeFile(
     wb,
-    `Template_${typeLabel(type).replaceAll(' ','_')}.xlsx`
+    'Template_' +
+    labelType(type).replace(/ /g,'_') +
+    '.xlsx'
   );
+
 }
 
-async function importExcel(e){
-  const file=e.target.files?.[0];
-  if(!file)return;
-
-  try{
-    showLoading();
-
-    const buffer=await file.arrayBuffer();
-    const wb=XLSX.read(buffer,{type:'array'});
-    const ws=wb.Sheets[wb.SheetNames[1]||wb.SheetNames[0]];
-
-    const rows=XLSX.utils.sheet_to_json(ws,{
-      defval:'',
-      raw:false
-    });
-
-    if(!rows.length)
-      throw new Error('Data Excel kosong.');
-
-    const type=activeTab;
-    const valid=[];
-
-    for(let i=0;i<rows.length;i++){
-      const r=rows[i];
-
-      const obj={};
-
-      fieldsFor(type).forEach(([key,label])=>{
-        obj[key]=r[label]??r[key]??'';
-      });
-
-      obj.jenisKelamin=normalizeGender(obj.jenisKelamin);
-
-      const error=validateRow(obj,type);
-
-      if(error)
-        throw new Error(`Baris ${i+2}: ${error}`);
-
-      valid.push(obj);
-    }
-
-    await apiPost({
-      action:'bulkAdd',
-      type,
-      rows:valid
-    });
-
-    clearCache();
-    toast(`${valid.length} data berhasil diimpor.`);
-    await loadUnitData();
-
-  }catch(err){
-    toast(err.message,true);
-  }finally{
-    e.target.value='';
-    showLoading(false);
-  }
-}
-
-async function exportExcel(){
-  try{
-    const type=activeTab;
-
-    let rows=getCached(type);
-
-    if(!rows){
-      const r=await apiGet({action:'list',type});
-      rows=r.rows||[];
-    }
-
-    if(type==='posyandu'){
-      rows=rows.filter(x=>
-        (x.kategori||'')===posyanduCategory
-      );
-    }
-
-    const fields=fieldsFor(type);
-
-    const output=rows.map(r=>{
-      const o={};
-      fields.forEach(([key,label])=>{
-        o[label]=key==='tgl'
-          ? formatDate(r[key])
-          : r[key]||'';
-      });
-      return o;
-    });
-
-    const wb=XLSX.utils.book_new();
-    const ws=XLSX.utils.json_to_sheet(output);
-
-    XLSX.utils.book_append_sheet(
-      wb,
-      ws,
-      typeLabel(type).substring(0,31)
-    );
-
-    XLSX.writeFile(
-      wb,
-      `Data_${typeLabel(type).replaceAll(' ','_')}.xlsx`
-    );
-
-  }catch(err){
-    toast(err.message,true);
-  }
-}
 
 /* =========================================================
-   PENGUMUMAN
+   IMPORT EXCEL
+========================================================= */
+
+async function importExcel(
+  event,
+  type
+){
+
+  const file =
+    event.target.files[0];
+
+  if(!file) return;
+
+
+  try{
+
+    const buffer =
+      await file.arrayBuffer();
+
+
+    const workbook =
+      XLSX.read(
+        buffer,
+        {type:'array'}
+      );
+
+
+    const sheet =
+      workbook.Sheets[
+        workbook.SheetNames[0]
+      ];
+
+
+    const rows =
+      XLSX.utils.sheet_to_json(
+        sheet,
+        {defval:''}
+      );
+
+
+    const converted = [];
+
+
+    rows.forEach(
+      row => {
+
+        const obj = {
+
+          nama:
+            row.Nama || '',
+
+          nik:
+            String(
+              row.NIK || ''
+            ).replace(/\D/g,''),
+
+          tgl:
+            convertExcelDate(
+              row['Tanggal Lahir']
+            ),
+
+          jenisKelamin:
+            normalizeGenderFE(
+              row['Jenis Kelamin']
+            )
+
+        };
+
+
+        if(type === 'siswa'){
+
+          obj.nisn =
+            String(
+              row.NISN || ''
+            ).replace(/\D/g,'');
+
+        }
+
+
+        if(type === 'posyandu'){
+
+          obj.kategori =
+            row.Kategori || '';
+
+
+          obj.usiaKehamilan =
+            String(
+              row['Usia Kehamilan'] || ''
+            )
+            .replace(/\D/g,'')
+            .slice(0,1);
+
+        }
+
+
+        converted.push(obj);
+
+      }
+    );
+
+
+    const valid = [];
+
+    const errors = [];
+
+
+    converted.forEach(
+      (obj,i) => {
+
+        const error =
+          validateRow(
+            obj,
+            type
+          );
+
+
+        if(error){
+
+          errors.push(
+            'Baris ' +
+            (i + 2) +
+            ': ' +
+            error
+          );
+
+        }else{
+
+          valid.push(obj);
+
+        }
+
+      }
+    );
+
+
+    if(!valid.length){
+
+      alert(
+        'Tidak ada data valid.\n\n' +
+        errors.join('\n')
+      );
+
+      return;
+
+    }
+
+
+    const result =
+      await apiPost({
+
+        action:'bulkAdd',
+
+        type,
+
+        rows:valid
+
+      });
+
+
+    delete dataCache[
+      cacheKey(type)
+    ];
+
+
+    await loadTable(type);
+
+
+    let message =
+      result.message || 'Import selesai';
+
+
+    if(errors.length){
+
+      message +=
+        '\n\nData yang tidak masuk:\n' +
+        errors.slice(0,10).join('\n');
+
+      if(errors.length > 10){
+
+        message +=
+          '\n... dan ' +
+          (errors.length - 10) +
+          ' lainnya.';
+
+      }
+
+    }
+
+
+    alert(message);
+
+
+  }catch(err){
+
+    alert(
+      'Import gagal: ' +
+      err.message
+    );
+
+  }
+
+
+  event.target.value = '';
+
+}
+
+
+function convertExcelDate(value){
+
+  if(!value) return '';
+
+
+  if(
+    typeof value === 'number'
+  ){
+
+    const date =
+      XLSX.SSF.parse_date_code(
+        value
+      );
+
+    if(date){
+
+      return [
+        date.y,
+        String(date.m).padStart(2,'0'),
+        String(date.d).padStart(2,'0')
+      ].join('-');
+
+    }
+
+  }
+
+
+  const d =
+    new Date(value);
+
+  if(!isNaN(d.getTime())){
+
+    return d
+      .toISOString()
+      .slice(0,10);
+
+  }
+
+
+  return String(value);
+
+}
+
+
+/* =========================================================
+   EXPORT EXCEL
+========================================================= */
+
+function exportExcel(type){
+
+  let rows =
+    getCachedRows(type);
+
+
+  if(type === 'posyandu'){
+
+    rows =
+      rows.filter(
+        r =>
+          String(
+            r.Kategori || ''
+          ) === posyanduCategory
+      );
+
+  }
+
+
+  const fields =
+    fieldsFor(type);
+
+
+  const output =
+    rows.map(row => {
+
+      const obj = {};
+
+
+      if(type === 'posyandu'){
+
+        obj.Kategori =
+          row.Kategori || '';
+
+      }
+
+
+      fields.forEach(
+        field => {
+
+          let value =
+            getRowValue(
+              row,
+              field.key
+            );
+
+
+          if(field.key === 'jenisKelamin'){
+
+            value =
+              normalizeGenderFE(value);
+
+          }
+
+
+          obj[field.label] =
+            value || '';
+
+        }
+      );
+
+
+      return obj;
+
+    });
+
+
+  const ws =
+    XLSX.utils.json_to_sheet(
+      output
+    );
+
+
+  const wb =
+    XLSX.utils.book_new();
+
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    labelType(type)
+  );
+
+
+  XLSX.writeFile(
+    wb,
+    'Data_' +
+    labelType(type).replace(/ /g,'_') +
+    '.xlsx'
+  );
+
+}
+
+
+/* =========================================================
+   ANNOUNCEMENTS
 ========================================================= */
 
 async function loadAnnouncements(){
-  const box=document.getElementById('announcementBox');
-  if(!box)return;
+
+  const area =
+    document.getElementById(
+      'announcementArea'
+    );
+
+  if(!area) return;
+
 
   try{
-    const r=await apiGet({
-      action:'listAnnouncements',
-      activeOnly:'true'
-    });
 
-    const rows=r.rows||[];
+    const result =
+      await apiGet({
+        action:'listAnnouncements',
+        activeOnly:'true'
+      });
 
-    if(!rows.length){
-      box.innerHTML='';
+
+    announcementCache =
+      result.rows || [];
+
+
+    if(!announcementCache.length){
+
+      area.innerHTML = '';
+
       return;
+
     }
 
-    box.innerHTML=`
-      <div class="card">
-        <h3>📢 Pengumuman</h3>
-        ${rows.map(a=>`
-          <div class="announcement">
-            <h3>${esc(a.judul)}</h3>
-            <div style="white-space:pre-wrap">
-              ${esc(a.isi)}
-            </div>
-            <div class="date">
-              ${esc(formatDate(a.tanggal))}
-            </div>
+
+    area.innerHTML = `
+
+      <div class="card announcement">
+
+        <div class="announcement-head">
+
+          <div class="announcement-title">
+            📢 Pengumuman
           </div>
-        `).join('')}
-      </div>`;
 
-  }catch(err){
-    box.innerHTML='';
-  }
-}
+        </div>
 
-/* =========================================================
-   PROFIL
-========================================================= */
 
-async function openProfile(){
-  try{
-    showLoading();
+        ${announcementCache.map(
+          a => `
 
-    const r=await apiGet({
-      action:'getProfile'
-    });
+            <div class="announcement-item">
 
-    const p=r.profile||{};
+              <h4>
+                ${esc(a.Judul || a.judul)}
+              </h4>
 
-    openModal(`
-      <div class="modal-head">
-        <h2>Profil Instansi</h2>
-        <button class="btn btn-light" onclick="closeModal()">✕</button>
+              <div class="announcement-date">
+                ${formatDateTime(
+                  a.Tanggal ||
+                  a.tanggal
+                )}
+              </div>
+
+              <div class="announcement-content">
+                ${esc(
+                  a.Isi ||
+                  a.isi
+                )}
+              </div>
+
+            </div>
+
+          `
+        ).join('')}
+
       </div>
 
-      <form onsubmit="saveProfile(event)">
-        <div class="form-grid">
-
-          <div class="form-group">
-            <label>Nama Instansi</label>
-            <input id="p_nama" value="${esc(p.nama||session.unitName||'')}" required>
-          </div>
-
-          <div class="form-group">
-            <label>Alamat</label>
-            <input id="p_alamat" value="${esc(p.alamat||'')}">
-          </div>
-
-          <div class="form-group">
-            <label>Nomor HP</label>
-            <input id="p_hp" value="${esc(p.hp||'')}">
-          </div>
-
-          <div class="form-group">
-            <label>Kepala/Penanggung Jawab</label>
-            <input id="p_kepala" value="${esc(p.kepala||'')}">
-          </div>
-
-        </div>
-
-        <div class="actions" style="margin-top:20px">
-          <button type="button" class="btn btn-light" onclick="closeModal()">
-            Batal
-          </button>
-          <button class="btn btn-primary">Simpan</button>
-        </div>
-      </form>
-    `);
+    `;
 
   }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
+
+    console.log(
+      'Pengumuman:',
+      err.message
+    );
+
   }
+
 }
 
-async function saveProfile(e){
-  e.preventDefault();
-
-  try{
-    showLoading();
-
-    await apiPost({
-      action:'saveProfile',
-      data:{
-        nama:document.getElementById('p_nama').value,
-        alamat:document.getElementById('p_alamat').value,
-        hp:document.getElementById('p_hp').value,
-        kepala:document.getElementById('p_kepala').value
-      }
-    });
-
-    session.unitName=
-      document.getElementById('p_nama').value;
-
-    saveSession();
-    closeModal();
-    render();
-
-    toast('Profil berhasil disimpan.');
-
-  }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
-  }
-}
 
 /* =========================================================
    ADMIN
 ========================================================= */
 
 async function renderAdmin(){
-  document.getElementById('app').innerHTML=`
-    <header>
-      <div class="header-inner">
-        <div class="brand">
-          SPPG OGAN ILIR SUNGAI PINANG III
-          <small>ADMINISTRATOR</small>
-        </div>
 
-        <button class="btn btn-light btn-sm" onclick="logout()">
-          Keluar
-        </button>
-      </div>
-    </header>
+  document.getElementById('app').innerHTML = `
+
+    ${header()}
 
     <main class="container">
 
-      <div class="card">
-        <div class="top-actions">
-          <div>
-            <h2>Admin Panel</h2>
-            <div style="color:#6b7280">
-              Pengelolaan data penerima manfaat dan sistem
+      <div class="topbar">
+
+        <div>
+
+          <h1 class="page-title">
+            Panel Administrator
+          </h1>
+
+          <div class="page-subtitle">
+            Pengelolaan data SPPG
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div id="adminStats"></div>
+
+
+      <div class="admin-grid">
+
+        <div class="card admin-panel">
+
+          <h2 class="section-title">
+            Data Penerima
+          </h2>
+
+          <div class="tabs">
+
+            ${[
+              ['siswa','Siswa'],
+              ['guru','Guru'],
+              ['tendik','Tendik'],
+              ['penjaga','Penjaga Sekolah'],
+              ['posyandu','Posyandu']
+            ].map(
+              t => `
+
+                <button
+                  class="tab ${
+                    activeTab === t[0]
+                    ? 'active'
+                    : ''
+                  }"
+                  onclick="adminTab('${t[0]}')"
+                >
+                  ${t[1]}
+                </button>
+
+              `
+            ).join('')}
+
+          </div>
+
+
+          <div id="adminDataArea">
+            <div class="loading">
+              Memuat data...
             </div>
           </div>
+
         </div>
-      </div>
 
-      <div class="card">
-        <div id="adminStats" class="stats"></div>
-      </div>
 
-      <div class="card">
-        <div class="admin-menu">
-          <button class="tab active" onclick="adminTab('data')">
-            Data Penerima
-          </button>
-          <button class="tab" onclick="adminTab('users')">
-            Pengguna
-          </button>
-          <button class="tab" onclick="adminTab('announcement')">
-            Pengumuman
-          </button>
+        <div>
+
+          <div class="card admin-panel">
+
+            <h2 class="section-title">
+              Manajemen User
+            </h2>
+
+            <button
+              class="btn btn-primary"
+              onclick="openUserForm()"
+            >
+              + Tambah User
+            </button>
+
+            <div
+              id="usersArea"
+              style="margin-top:15px"
+            >
+              Memuat...
+            </div>
+
+          </div>
+
+
+          <div
+            class="card admin-panel"
+            style="margin-top:20px"
+          >
+
+            <h2 class="section-title">
+              Pengumuman
+            </h2>
+
+            <button
+              class="btn btn-success"
+              onclick="openAnnouncementForm()"
+            >
+              + Tambah Pengumuman
+            </button>
+
+            <div
+              id="adminAnnouncementArea"
+              style="margin-top:15px"
+            >
+              Memuat...
+            </div>
+
+          </div>
+
         </div>
+
       </div>
 
-      <div id="adminContent"></div>
+    </main>
 
-    </main>`;
+  `;
+
 
   loadAdminStats();
-  adminTab('data');
+
+  loadAdminData(activeTab);
+
+  loadUsers();
+
+  loadAdminAnnouncements();
+
 }
+
+
+function adminTab(type){
+
+  activeTab = type;
+
+  renderAdmin();
+
+}
+
+
+/* =========================================================
+   ADMIN STATS
+========================================================= */
 
 async function loadAdminStats(){
-  const el=document.getElementById('adminStats');
 
-  const types=['siswa','guru','tendik','penjaga','posyandu'];
-
-  try{
-    const result=await Promise.all(
-      types.map(t=>apiGet({
-        action:'list',
-        type:t,
-        all:'true'
-      }))
+  const area =
+    document.getElementById(
+      'adminStats'
     );
 
-    el.innerHTML=types.map((t,i)=>`
-      <div class="stat">
-        <div>${typeLabel(t)}</div>
-        <div class="num">${result[i].rows?.length||0}</div>
-      </div>
-    `).join('');
+  if(!area) return;
 
-  }catch(err){
-    el.innerHTML='<div class="empty">Gagal memuat statistik.</div>';
-  }
-}
 
-let currentAdminTab='data';
+  const types = [
+    'siswa',
+    'guru',
+    'tendik',
+    'penjaga',
+    'posyandu'
+  ];
 
-function adminTab(tab){
-  currentAdminTab=tab;
-
-  document.querySelectorAll('.admin-menu .tab')
-    .forEach(x=>x.classList.remove('active'));
-
-  const buttons=document.querySelectorAll('.admin-menu .tab');
-
-  if(tab==='data')buttons[0]?.classList.add('active');
-  if(tab==='users')buttons[1]?.classList.add('active');
-  if(tab==='announcement')buttons[2]?.classList.add('active');
-
-  if(tab==='data')renderAdminData();
-  if(tab==='users')renderUsers();
-  if(tab==='announcement')renderAnnouncementAdmin();
-}
-
-async function renderAdminData(){
-  const content=document.getElementById('adminContent');
-
-  content.innerHTML=`
-    <div class="card">
-      <div class="tabs">
-        ${['siswa','guru','tendik','penjaga','posyandu'].map(t=>`
-          <button
-            class="tab ${activeTab===t?'active':''}"
-            onclick="activeTab='${t}';renderAdminData()">
-            ${typeLabel(t)}
-          </button>
-        `).join('')}
-      </div>
-
-      <div class="actions" style="margin-bottom:15px">
-        <button class="btn btn-primary" onclick="adminExport('${activeTab}')">
-          Download Excel
-        </button>
-      </div>
-
-      <div id="adminTable"></div>
-    </div>`;
 
   try{
-    const r=await apiGet({
-      action:'list',
-      type:activeTab,
-      all:'true'
-    });
 
-    renderAdminTable(activeTab,r.rows||[]);
+    const results =
+      await Promise.all(
+        types.map(
+          type =>
+            apiGet({
+              action:'list',
+              type
+            })
+        )
+      );
+
+
+    results.forEach(
+      (r,i) =>
+        setCachedRows(
+          types[i],
+          r.rows || []
+        )
+    );
+
+
+    area.innerHTML = `
+
+      <div class="stats">
+
+        ${types.map(
+          type => `
+
+            <div class="card stat">
+
+              <div class="stat-label">
+                ${labelType(type)}
+              </div>
+
+              <div class="stat-value">
+                ${getCachedRows(type).length}
+              </div>
+
+            </div>
+
+          `
+        ).join('')}
+
+      </div>
+
+    `;
 
   }catch(err){
-    document.getElementById('adminTable').innerHTML=
-      `<div class="empty">${esc(err.message)}</div>`;
+
+    area.innerHTML =
+      `<div class="notice notice-danger">
+        ${esc(err.message)}
+      </div>`;
+
   }
+
 }
 
-function renderAdminTable(type,rows){
-  const fields=fieldsFor(type);
 
-  if(!rows.length){
-    document.getElementById('adminTable').innerHTML=
-      '<div class="empty">Belum ada data.</div>';
+/* =========================================================
+   ADMIN DATA
+========================================================= */
+
+async function loadAdminData(type){
+
+  const area =
+    document.getElementById(
+      'adminDataArea'
+    );
+
+  if(!area) return;
+
+
+  try{
+
+    const result =
+      await apiGet({
+        action:'list',
+        type
+      });
+
+
+    setCachedRows(
+      type,
+      result.rows || []
+    );
+
+
+    let rows =
+      result.rows || [];
+
+
+    const fields =
+      fieldsFor(type);
+
+
+    area.innerHTML = `
+
+      <div class="toolbar"
+           style="padding:0 0 12px">
+
+        <button
+          class="btn btn-success btn-sm"
+          onclick="exportExcel('${type}')"
+        >
+          Download Excel
+        </button>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>No</th>
+
+              <th>Unit</th>
+
+              ${
+                type === 'posyandu'
+                ? '<th>Kategori</th>'
+                : ''
+              }
+
+              ${fields.map(
+                f =>
+                  `<th>${esc(f.label)}</th>`
+              ).join('')}
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            ${
+              rows.length
+              ? rows.map(
+                (r,i) => `
+
+                  <tr>
+
+                    <td>${i+1}</td>
+
+                    <td>
+                      ${esc(r.Unit || '')}
+                    </td>
+
+                    ${
+                      type === 'posyandu'
+                      ? `<td>
+                          ${esc(r.Kategori || '')}
+                        </td>`
+                      : ''
+                    }
+
+                    ${fields.map(
+                      f => {
+
+                        let value =
+                          getRowValue(
+                            r,
+                            f.key
+                          );
+
+
+                        if(
+                          f.key ===
+                          'jenisKelamin'
+                        ){
+
+                          value =
+                            normalizeGenderFE(
+                              value
+                            );
+
+                        }
+
+
+                        if(
+                          f.key === 'tgl'
+                        ){
+
+                          value =
+                            formatDate(
+                              value
+                            );
+
+                        }
+
+
+                        if(
+                          f.key ===
+                          'usiaKehamilan'
+                        ){
+
+                          value =
+                            value
+                            ? 'Trimester ' + value
+                            : '';
+
+                        }
+
+
+                        return `
+                          <td>
+                            ${esc(value)}
+                          </td>
+                        `;
+
+                      }
+                    ).join('')}
+
+                  </tr>
+
+                `
+              ).join('')
+              : `
+                <tr>
+                  <td
+                    colspan="20"
+                    style="text-align:center"
+                  >
+                    Belum ada data
+                  </td>
+                </tr>
+              `
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    `;
+
+  }catch(err){
+
+    area.innerHTML =
+      `<div class="notice notice-danger">
+        ${esc(err.message)}
+      </div>`;
+
+  }
+
+}
+
+
+/* =========================================================
+   USERS ADMIN
+========================================================= */
+
+async function loadUsers(){
+
+  const area =
+    document.getElementById(
+      'usersArea'
+    );
+
+  if(!area) return;
+
+
+  try{
+
+    const result =
+      await apiGet({
+        action:'users'
+      });
+
+
+    const users =
+      result.users || [];
+
+
+    area.innerHTML = `
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Username</th>
+              <th>Role</th>
+              <th>Unit</th>
+              <th>Aksi</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            ${users.map(
+              u => `
+
+                <tr>
+
+                  <td>
+                    ${esc(u.username)}
+                  </td>
+
+                  <td>
+                    <span class="badge badge-blue">
+                      ${esc(u.role)}
+                    </span>
+                  </td>
+
+                  <td>
+                    ${esc(u.unitName)}
+                  </td>
+
+                  <td>
+
+                    ${
+                      String(u.username).toLowerCase()
+                      !==
+                      String(session.username).toLowerCase()
+
+                      ? `
+                        <button
+                          class="btn btn-danger btn-sm"
+                          onclick="deleteUser('${esc(u.username)}')"
+                        >
+                          Hapus
+                        </button>
+                      `
+                      : '-'
+                    }
+
+                  </td>
+
+                </tr>
+
+              `
+            ).join('')}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    `;
+
+  }catch(err){
+
+    area.innerHTML =
+      `<div class="notice notice-danger">
+        ${esc(err.message)}
+      </div>`;
+
+  }
+
+}
+
+
+function openUserForm(){
+
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    `
+
+      <div class="modal" id="userModal">
+
+        <div class="modal-box">
+
+          <div class="modal-head">
+
+            <h3 class="modal-title">
+              Tambah User
+            </h3>
+
+            <button
+              class="close"
+              onclick="document.getElementById('userModal').remove()"
+            >
+              ×
+            </button>
+
+          </div>
+
+
+          <form onsubmit="saveUser(event)">
+
+            <div class="modal-body">
+
+              <div class="form-group">
+
+                <label class="form-label">
+                  Username
+                </label>
+
+                <input
+                  id="user_username"
+                  class="form-control"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label class="form-label">
+                  Password
+                </label>
+
+                <input
+                  id="user_password"
+                  class="form-control"
+                  type="password"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label class="form-label">
+                  Nama Unit
+                </label>
+
+                <input
+                  id="user_unit"
+                  class="form-control"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label class="form-label">
+                  Jenis Instansi
+                </label>
+
+                <select
+                  id="user_type"
+                  class="form-control"
+                  required
+                >
+
+                  <option value="sekolah">
+                    Sekolah
+                  </option>
+
+                  <option value="posyandu">
+                    Posyandu
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+            <div class="modal-foot">
+
+              <button
+                type="button"
+                class="btn btn-light"
+                onclick="document.getElementById('userModal').remove()"
+              >
+                Batal
+              </button>
+
+              <button
+                class="btn btn-primary"
+              >
+                Simpan
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    `
+  );
+
+}
+
+
+async function saveUser(event){
+
+  event.preventDefault();
+
+
+  try{
+
+    await apiPost({
+
+      action:'addUser',
+
+      username:
+        document.getElementById(
+          'user_username'
+        ).value.trim(),
+
+      password:
+        document.getElementById(
+          'user_password'
+        ).value,
+
+      unitName:
+        document.getElementById(
+          'user_unit'
+        ).value.trim(),
+
+      unitType:
+        document.getElementById(
+          'user_type'
+        ).value
+
+    });
+
+
+    document.getElementById(
+      'userModal'
+    ).remove();
+
+
+    loadUsers();
+
+
+    toast(
+      'User berhasil ditambahkan'
+    );
+
+
+  }catch(err){
+
+    toast(err.message);
+
+  }
+
+}
+
+
+async function deleteUser(username){
+
+  if(!confirm(
+    'Hapus user ' +
+    username +
+    '?'
+  )){
     return;
   }
 
-  document.getElementById('adminTable').innerHTML=`
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Instansi</th>
-            ${fields.map(f=>`<th>${f[1]}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map((r,i)=>`
-            <tr>
-              <td>${i+1}</td>
-              <td>${esc(r.unit||'')}</td>
-              ${fields.map(([key])=>`
-                <td>${esc(key==='tgl'?formatDate(r[key]):r[key]||'')}</td>
-              `).join('')}
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>`;
-}
 
-async function adminExport(type){
   try{
-    const r=await apiGet({
-      action:'list',
-      type,
-      all:'true'
+
+    await apiPost({
+
+      action:'deleteUser',
+
+      username
+
     });
 
-    const fields=fieldsFor(type);
 
-    const rows=(r.rows||[]).map(x=>{
-      const o={
-        'Instansi':x.unit||''
-      };
+    loadUsers();
 
-      fields.forEach(([key,label])=>{
-        o[label]=key==='tgl'
-          ? formatDate(x[key])
-          : x[key]||'';
+    toast(
+      'User berhasil dihapus'
+    );
+
+
+  }catch(err){
+
+    toast(err.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   ADMIN ANNOUNCEMENTS
+========================================================= */
+
+async function loadAdminAnnouncements(){
+
+  const area =
+    document.getElementById(
+      'adminAnnouncementArea'
+    );
+
+  if(!area) return;
+
+
+  try{
+
+    const result =
+      await apiGet({
+        action:'listAnnouncements'
       });
 
-      return o;
-    });
 
-    const wb=XLSX.utils.book_new();
-    const ws=XLSX.utils.json_to_sheet(rows);
+    const rows =
+      result.rows || [];
 
-    XLSX.utils.book_append_sheet(
-      wb,
-      ws,
-      typeLabel(type).substring(0,31)
-    );
 
-    XLSX.writeFile(
-      wb,
-      `Rekap_${typeLabel(type).replaceAll(' ','_')}.xlsx`
-    );
+    area.innerHTML =
+      rows.length
+      ? rows.map(
+          a => `
+
+            <div
+              class="announcement-item"
+            >
+
+              <h4>
+                ${esc(a.Judul)}
+              </h4>
+
+              <div class="announcement-date">
+                ${formatDateTime(a.Tanggal)}
+              </div>
+
+              <div
+                class="announcement-content"
+              >
+                ${esc(a.Isi)}
+              </div>
+
+              <div
+                style="margin-top:10px"
+              >
+
+                <span class="badge ${
+                  String(a.Status).toLowerCase()
+                  === 'aktif'
+                  ? 'badge-green'
+                  : 'badge-red'
+                }">
+                  ${esc(a.Status)}
+                </span>
+
+                <button
+                  class="btn btn-light btn-sm"
+                  onclick='openAnnouncementForm(${JSON.stringify(a).replace(/'/g,"&#39;")})'
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="btn btn-danger btn-sm"
+                  onclick="deleteAnnouncement('${esc(a.ID)}')"
+                >
+                  Hapus
+                </button>
+
+              </div>
+
+            </div>
+
+          `
+        ).join('')
+      : '<div class="empty">Belum ada pengumuman.</div>';
+
 
   }catch(err){
-    toast(err.message,true);
-  }
-}
 
-/* =========================================================
-   USERS
-========================================================= */
-
-async function renderUsers(){
-  const content=document.getElementById('adminContent');
-
-  content.innerHTML=`
-    <div class="card">
-      <div class="top-actions">
-        <h2>Manajemen Pengguna</h2>
-
-        <button class="btn btn-success" onclick="openUserForm()">
-          + Tambah Pengguna
-        </button>
-      </div>
-
-      <div id="usersTable" style="margin-top:15px"></div>
-    </div>`;
-
-  try{
-    const r=await apiGet({action:'users'});
-    const users=r.users||[];
-
-    document.getElementById('usersTable').innerHTML=`
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Username</th>
-              <th>Instansi</th>
-              <th>Tipe</th>
-              <th>Role</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            ${users.map((u,i)=>`
-              <tr>
-                <td>${i+1}</td>
-                <td>${esc(u.username)}</td>
-                <td>${esc(u.unitName||'')}</td>
-                <td>${esc(u.unitType||'')}</td>
-                <td>${esc(u.role||'user')}</td>
-                <td>
-                  ${
-                    u.username==='admin'
-                    ? '<span class="badge">Default</span>'
-                    : `<button class="btn btn-danger btn-sm"
-                        onclick="removeUser('${esc(u.username)}')">
-                        Hapus
-                       </button>`
-                  }
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+    area.innerHTML =
+      `<div class="notice notice-danger">
+        ${esc(err.message)}
       </div>`;
-  }catch(err){
-    toast(err.message,true);
+
   }
+
 }
 
-function openUserForm(){
-  openModal(`
-    <div class="modal-head">
-      <h2>Tambah Pengguna</h2>
-      <button class="btn btn-light" onclick="closeModal()">✕</button>
-    </div>
 
-    <form onsubmit="saveUser(event)">
-      <div class="form-grid">
+function openAnnouncementForm(item=null){
 
-        <div class="form-group">
-          <label>Username</label>
-          <input id="u_username" required>
-        </div>
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    `
 
-        <div class="form-group">
-          <label>Password</label>
-          <input id="u_password" type="password" required>
-        </div>
+      <div class="modal" id="announcementModal">
 
-        <div class="form-group">
-          <label>Nama Instansi</label>
-          <input id="u_unitName" required>
-        </div>
+        <div class="modal-box">
 
-        <div class="form-group">
-          <label>Tipe Instansi</label>
-          <select id="u_unitType">
-            <option value="sekolah">Sekolah</option>
-            <option value="posyandu">Posyandu</option>
-          </select>
-        </div>
+          <div class="modal-head">
 
-      </div>
+            <h3 class="modal-title">
+              ${
+                item
+                ? 'Edit Pengumuman'
+                : 'Tambah Pengumuman'
+              }
+            </h3>
 
-      <div class="actions" style="margin-top:20px">
-        <button type="button" class="btn btn-light" onclick="closeModal()">
-          Batal
-        </button>
-        <button class="btn btn-primary">Simpan</button>
-      </div>
-    </form>
-  `);
-}
+            <button
+              class="close"
+              onclick="document.getElementById('announcementModal').remove()"
+            >
+              ×
+            </button>
 
-async function saveUser(e){
-  e.preventDefault();
-
-  try{
-    showLoading();
-
-    await apiPost({
-      action:'addUser',
-      username:document.getElementById('u_username').value.trim(),
-      password:document.getElementById('u_password').value,
-      unitName:document.getElementById('u_unitName').value.trim(),
-      unitType:document.getElementById('u_unitType').value
-    });
-
-    closeModal();
-    toast('Pengguna berhasil ditambahkan.');
-    renderUsers();
-
-  }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
-  }
-}
-
-async function removeUser(username){
-  if(!confirm('Hapus pengguna '+username+'?'))return;
-
-  try{
-    showLoading();
-
-    await apiPost({
-      action:'deleteUser',
-      username
-    });
-
-    toast('Pengguna dihapus.');
-    renderUsers();
-
-  }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
-  }
-}
-
-/* =========================================================
-   ADMIN PENGUMUMAN
-========================================================= */
-
-async function renderAnnouncementAdmin(){
-  const content=document.getElementById('adminContent');
-
-  content.innerHTML=`
-    <div class="card">
-      <div class="top-actions">
-        <h2>Pengumuman</h2>
-
-        <button class="btn btn-success"
-          onclick="openAnnouncementForm()">
-          + Tambah Pengumuman
-        </button>
-      </div>
-
-      <div id="announcementAdminTable" style="margin-top:15px"></div>
-    </div>`;
-
-  try{
-    const r=await apiGet({
-      action:'listAnnouncements'
-    });
-
-    const rows=r.rows||[];
-
-    if(!rows.length){
-      document.getElementById('announcementAdminTable').innerHTML=
-        '<div class="empty">Belum ada pengumuman.</div>';
-      return;
-    }
-
-    document.getElementById('announcementAdminTable').innerHTML=`
-      ${rows.map(a=>`
-        <div class="announcement">
-          <div class="top-actions">
-            <div>
-              <h3>${esc(a.judul)}</h3>
-              <div class="date">${esc(formatDate(a.tanggal))}</div>
-            </div>
-
-            <div class="actions">
-              <span class="badge ${
-                a.status==='Aktif'
-                ? 'badge-green'
-                : 'badge-red'
-              }">
-                ${esc(a.status)}
-              </span>
-
-              <button class="btn btn-primary btn-sm"
-                onclick='openAnnouncementForm(${JSON.stringify(a)})'>
-                Edit
-              </button>
-
-              <button class="btn btn-danger btn-sm"
-                onclick="deleteAnnouncement('${esc(a.id)}')">
-                Hapus
-              </button>
-            </div>
           </div>
 
-          <div style="white-space:pre-wrap;margin-top:10px">
-            ${esc(a.isi)}
-          </div>
+
+          <form
+            onsubmit="saveAnnouncement(event,'${item ? esc(item.ID) : ''}')"
+          >
+
+            <div class="modal-body">
+
+              <div class="form-group">
+
+                <label class="form-label">
+                  Judul
+                </label>
+
+                <input
+                  id="ann_judul"
+                  class="form-control"
+                  value="${esc(item?.Judul || '')}"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label class="form-label">
+                  Isi Pengumuman
+                </label>
+
+                <textarea
+                  id="ann_isi"
+                  class="form-control"
+                  required
+                >${esc(item?.Isi || '')}</textarea>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label class="form-label">
+                  Status
+                </label>
+
+                <select
+                  id="ann_status"
+                  class="form-control"
+                >
+
+                  <option
+                    value="Aktif"
+                    ${
+                      !item ||
+                      item.Status === 'Aktif'
+                      ? 'selected'
+                      : ''
+                    }
+                  >
+                    Aktif
+                  </option>
+
+                  <option
+                    value="Nonaktif"
+                    ${
+                      item?.Status === 'Nonaktif'
+                      ? 'selected'
+                      : ''
+                    }
+                  >
+                    Nonaktif
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+            <div class="modal-foot">
+
+              <button
+                type="button"
+                class="btn btn-light"
+                onclick="document.getElementById('announcementModal').remove()"
+              >
+                Batal
+              </button>
+
+              <button
+                class="btn btn-primary"
+              >
+                Simpan
+              </button>
+
+            </div>
+
+          </form>
+
         </div>
-      `).join('')}`;
 
-  }catch(err){
-    toast(err.message,true);
-  }
+      </div>
+
+    `
+  );
+
 }
 
-function openAnnouncementForm(a=null){
-  openModal(`
-    <div class="modal-head">
-      <h2>${a?'Edit':'Tambah'} Pengumuman</h2>
-      <button class="btn btn-light" onclick="closeModal()">✕</button>
-    </div>
 
-    <form onsubmit="saveAnnouncement(event,${a?`'${esc(a.id)}'`:'null'})">
+async function saveAnnouncement(
+  event,
+  id
+){
 
-      <div class="form-group" style="margin-bottom:15px">
-        <label>Judul</label>
-        <input id="a_judul" value="${esc(a?.judul||'')}" required>
-      </div>
+  event.preventDefault();
 
-      <div class="form-group" style="margin-bottom:15px">
-        <label>Isi Pengumuman</label>
-        <textarea id="a_isi" required>${esc(a?.isi||'')}</textarea>
-      </div>
 
-      <div class="form-group">
-        <label>Status</label>
-        <select id="a_status">
-          <option value="Aktif" ${(a?.status||'Aktif')==='Aktif'?'selected':''}>
-            Aktif
-          </option>
-          <option value="Nonaktif" ${(a?.status||'')==='Nonaktif'?'selected':''}>
-            Nonaktif
-          </option>
-        </select>
-      </div>
+  const data = {
 
-      <div class="actions" style="margin-top:20px">
-        <button type="button" class="btn btn-light" onclick="closeModal()">
-          Batal
-        </button>
-        <button class="btn btn-primary">
-          Simpan
-        </button>
-      </div>
-    </form>
-  `);
-}
+    judul:
+      document.getElementById(
+        'ann_judul'
+      ).value.trim(),
 
-async function saveAnnouncement(e,id){
-  e.preventDefault();
+    isi:
+      document.getElementById(
+        'ann_isi'
+      ).value.trim(),
 
-  const data={
-    judul:document.getElementById('a_judul').value.trim(),
-    isi:document.getElementById('a_isi').value.trim(),
-    status:document.getElementById('a_status').value
+    status:
+      document.getElementById(
+        'ann_status'
+      ).value
+
   };
 
+
   try{
-    showLoading();
 
     if(id){
+
       await apiPost({
+
         action:'updateAnnouncement',
+
         id,
+
         data
+
       });
+
     }else{
+
       await apiPost({
+
         action:'addAnnouncement',
+
         data
+
       });
+
     }
 
-    closeModal();
-    toast('Pengumuman berhasil disimpan.');
-    renderAnnouncementAdmin();
+
+    document.getElementById(
+      'announcementModal'
+    ).remove();
+
+
+    loadAdminAnnouncements();
+
+
+    toast(
+      'Pengumuman berhasil disimpan'
+    );
+
 
   }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
+
+    toast(err.message);
+
   }
+
 }
+
 
 async function deleteAnnouncement(id){
-  if(!confirm('Hapus pengumuman ini?'))return;
+
+  if(!confirm(
+    'Hapus pengumuman ini?'
+  )){
+    return;
+  }
+
 
   try{
-    showLoading();
 
     await apiPost({
+
       action:'deleteAnnouncement',
+
       id
+
     });
 
-    toast('Pengumuman dihapus.');
-    renderAnnouncementAdmin();
+
+    loadAdminAnnouncements();
+
+
+    toast(
+      'Pengumuman berhasil dihapus'
+    );
+
 
   }catch(err){
-    toast(err.message,true);
-  }finally{
-    showLoading(false);
+
+    toast(err.message);
+
   }
+
 }
 
+
 /* =========================================================
-   MODAL
+   LOGOUT
 ========================================================= */
 
-function openModal(html){
-  document.getElementById('modalBox').innerHTML=html;
-  document.getElementById('modal').classList.add('show');
+async function logout(){
+
+  try{
+
+    if(session?.token){
+
+      await apiPost({
+        action:'logout'
+      });
+
+    }
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+
+  clearSession();
+
 }
 
-function closeModal(){
-  document.getElementById('modal').classList.remove('show');
-  document.getElementById('modalBox').innerHTML='';
-  editRow=null;
-}
 
 /* =========================================================
-   START
+   AUTO RENDER
 ========================================================= */
 
 render();
+
 </script>
 
 </body>
