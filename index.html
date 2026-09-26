@@ -927,6 +927,12 @@ async function renderUnit(app){
 
         <button
           class="btn-ghost btn-sm"
+          id="btnTemplate">
+          📄 Template Excel
+        </button>
+
+        <button
+          class="btn-ghost btn-sm"
           id="btnImport">
           Import Excel
         </button>
@@ -984,6 +990,9 @@ async function renderUnit(app){
 
   $('#btnExport').onclick =
     ()=>exportExcel(activeTab,session.unitName);
+
+  $('#btnTemplate').onclick =
+    ()=>downloadTemplate(activeTab);
 
   $('#btnImport').onclick =
     ()=>$('#fileImport').click();
@@ -1829,6 +1838,103 @@ function importExcel(file,type){
     };
 
   reader.readAsArrayBuffer(file);
+}
+
+/* =========================================================
+   TEMPLATE EXCEL (CONTOH PENGISIAN)
+========================================================= */
+
+function downloadTemplate(type){
+
+  const cols =
+    fieldsFor(type);
+
+  const header =
+    (type === 'posyandu' ? ['Kategori'] : [])
+    .concat(cols.map(c=>c[1]));
+
+  let exampleRows = [];
+
+  if(type === 'siswa'){
+
+    exampleRows = [
+      ['Ahmad Fauzi','1234567890','3216010101150001','05/14/2015','Laki-laki'],
+      ['Siti Aminah','1234567891','3216010101160002','11/23/2016','Perempuan']
+    ];
+
+  }else if(type === 'guru'){
+
+    exampleRows = [
+      ['Budi Santoso','3216011203850001','12/03/1985'],
+      ['Nur Hidayah','3216014507880002','07/15/1988']
+    ];
+
+  }else{
+
+    exampleRows = [
+      ['Balita','Alif Ramadhan','3216010101220003','01/10/2022','Laki-laki'],
+      ['Ibu Hamil','Rina Wulandari','3216016005900004','05/20/1990','Perempuan'],
+      ['Ibu Menyusui','Dewi Lestari','3216015803920005','03/18/1992','Perempuan']
+    ];
+  }
+
+  const aoa =
+    [header].concat(exampleRows);
+
+  const ws =
+    XLSX.utils.aoa_to_sheet(aoa);
+
+  ws['!cols'] =
+    header.map(()=>({wch:20}));
+
+  const petunjukAoa = [
+    ['PETUNJUK PENGISIAN TEMPLATE IMPORT — '+label(type).toUpperCase()],
+    [''],
+    ['1. Jangan mengubah nama kolom pada baris pertama sheet "'+label(type)+'".'],
+    ['2. Baris ke-2 dan seterusnya pada sheet "'+label(type)+'" adalah CONTOH. Hapus baris contoh tersebut, lalu isi data asli mulai dari baris ke-2 (tepat di bawah judul kolom).'],
+    ['3. Kolom Tanggal Lahir wajib diisi format MM/DD/YYYY (Bulan/Tanggal/Tahun).'],
+    ['   Contoh: tanggal 14 Mei 2015 ditulis 05/14/2015'],
+    ['4. Kolom NIK wajib diisi 16 digit angka, tanpa spasi atau tanda baca.'],
+    (type === 'siswa'
+      ? ['5. Kolom NISN wajib diisi 5-10 digit angka.']
+      : null),
+    (type !== 'guru'
+      ? ['6. Kolom Jenis Kelamin wajib ditulis persis salah satu: Laki-laki atau Perempuan.']
+      : null),
+    (type === 'posyandu'
+      ? ['7. Kolom Kategori wajib diisi salah satu: Balita, Ibu Hamil, atau Ibu Menyusui.']
+      : null),
+    [''],
+    ['Setelah semua data terisi dengan benar, simpan file ini lalu unggah melalui tombol "Import Excel" pada aplikasi.']
+  ].filter(Boolean);
+
+  const wsPetunjuk =
+    XLSX.utils.aoa_to_sheet(petunjukAoa);
+
+  wsPetunjuk['!cols'] =
+    [{wch:95}];
+
+  const wb =
+    XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    wsPetunjuk,
+    'Petunjuk'
+  );
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    label(type).slice(0,30)
+  );
+
+  XLSX.writeFile(
+    wb,
+    'Template_'+
+    label(type).replace(/\s+/g,'_')+
+    '.xlsx'
+  );
 }
 
 /* =========================================================
