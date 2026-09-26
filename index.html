@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<title>SIPPM - Sistem Pendataan Penerima Manfaat</title>
+<title>SPPG Ogan Ilir Sungai Pinang III</title>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -906,15 +906,26 @@ function normalizeTingkat(tingkat){
       .trim()
       .toUpperCase();
 
-  if(t === 'KB' || t.includes('KB')){
+  if(
+    t === 'KB' ||
+    t.includes('KELOMPOK BERMAIN')
+  ){
     return 'KB';
   }
 
-  if(t === 'SD' || t.includes('SEKOLAH DASAR')){
+  if(
+    t === 'SD' ||
+    t.includes('SEKOLAH DASAR') ||
+    t.includes('SD (')
+  ){
     return 'SD';
   }
 
-  if(t === 'SMP' || t.includes('SEKOLAH MENENGAH PERTAMA')){
+  if(
+    t === 'SMP' ||
+    t.includes('SEKOLAH MENENGAH PERTAMA') ||
+    t.includes('SMP (')
+  ){
     return 'SMP';
   }
 
@@ -924,7 +935,8 @@ function normalizeTingkat(tingkat){
 
 function kelasOptionsForTingkat(tingkat){
 
-  const t = normalizeTingkat(tingkat);
+  const t =
+    normalizeTingkat(tingkat);
 
   if(t === 'SD'){
     return ['1','2','3','4','5','6'];
@@ -934,7 +946,6 @@ function kelasOptionsForTingkat(tingkat){
     return ['7','8','9'];
   }
 
-  // KB tidak menggunakan pilihan kelas.
   return [];
 
 }
@@ -942,9 +953,9 @@ function kelasOptionsForTingkat(tingkat){
 
 function schoolTabsForTingkat(tingkat){
 
-  const t = normalizeTingkat(tingkat);
+  const t =
+    normalizeTingkat(tingkat);
 
-  // KB hanya memiliki data Siswa dan Guru.
   if(t === 'KB'){
 
     return [
@@ -1320,15 +1331,15 @@ function renderLogin(){
       <div class="card login-card">
 
         <div class="login-logo">
-          SIPPM
+          SPPG
         </div>
 
         <h1 class="login-title">
-          SIPPM
+          SPPG Ogan Ilir
         </h1>
 
         <div class="login-sub">
-          Sistem Pendataan Penerima Manfaat
+          Sungai Pinang III
         </div>
 
         <div id="loginNotice"></div>
@@ -1461,13 +1472,13 @@ function header(){
         <div class="brand">
 
           <div class="logo">
-            SIPPM
+            SPPG
           </div>
 
           <div>
 
             <div class="brand-title">
-              SIPPM
+              SPPG OGAN ILIR SUNGAI PINANG III
             </div>
 
             <div class="brand-sub">
@@ -1615,7 +1626,7 @@ function renderUnit(){
 
 
     <div class="footer">
-      SIPPM - Sistem Pendataan Penerima Manfaat
+      SPPG Ogan Ilir Sungai Pinang III
     </div>
 
   `;
