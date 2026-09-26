@@ -613,6 +613,54 @@ tr:hover td{
   padding:30px 10px;
 }
 
+.user-list{
+  display:flex;
+  flex-direction:column;
+}
+
+.user-item{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.user-item:last-child{
+  border-bottom:0;
+}
+
+.user-info{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:0;
+}
+
+.user-name{
+  font-weight:800;
+  color:var(--navy);
+  font-size:13px;
+  word-break:break-word;
+}
+
+.user-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.user-unit{
+  font-size:11px;
+  color:var(--muted);
+  word-break:break-word;
+}
+
+.user-actions{
+  flex-shrink:0;
+}
+
 @media(max-width:1000px){
   .stats{
     grid-template-columns:repeat(3,1fr);
@@ -687,7 +735,7 @@ tr:hover td{
 ========================================================= */
 
 const API_URL =
-'https://script.google.com/macros/s/AKfycbxuMUmnqAtZs_XM5vm7aMzbarEkIVwo_F3vbega0c-vqVErv_hCvjhG0N_wRY7lM06Ypw/exec';
+'https://script.google.com/macros/s/AKfycbwnjcwMVX8t2TA_krkxVvRLEmX-M4RQTCyqgHDyTgK1VzlJytI1fWLmzGJQc--TJrsnOg/exec';
 
 const SESSION_KEY = 'sppg_session';
 
@@ -699,6 +747,8 @@ let session =
 let activeTab = 'siswa';
 
 let posyanduCategory = 'Balita';
+
+let kelasCategory = '';
 
 let dataCache = {};
 
@@ -849,6 +899,52 @@ function normalizeGenderFE(value){
 }
 
 
+function kelasOptionsForTingkat(tingkat){
+
+  const t =
+    String(tingkat || '')
+      .trim()
+      .toUpperCase();
+
+  if(t === 'SD'){
+    return ['1','2','3','4','5','6'];
+  }
+
+  if(t === 'SMP'){
+    return ['7','8','9'];
+  }
+
+  return [];
+
+}
+
+
+function schoolTabsForTingkat(tingkat){
+
+  const t =
+    String(tingkat || '')
+      .trim()
+      .toUpperCase();
+
+  if(t === 'KB'){
+
+    return [
+      ['siswa','Siswa'],
+      ['guru','Guru']
+    ];
+
+  }
+
+  return [
+    ['siswa','Siswa'],
+    ['guru','Guru'],
+    ['tendik','Tendik'],
+    ['penjaga','Penjaga Sekolah']
+  ];
+
+}
+
+
 function formatDate(value){
 
   if(!value) return '';
@@ -934,6 +1030,12 @@ function fieldsFor(type){
         label:'Jenis Kelamin',
         type:'gender',
         required:true
+      },
+      {
+        key:'kelas',
+        label:'Kelas',
+        type:'kelas',
+        required:false
       }
     ];
 
@@ -1053,6 +1155,29 @@ function validateRow(obj,type){
 
     if(!/^\d{5,10}$/.test(nisn)){
       return 'NISN harus 5-10 digit';
+    }
+
+
+    const kelasOptions =
+      kelasOptionsForTingkat(
+        session?.tingkat
+      );
+
+    if(kelasOptions.length){
+
+      const kelas =
+        String(obj.kelas || '').trim();
+
+      if(!kelasOptions.includes(kelas)){
+
+        return (
+          'Kelas wajib dipilih (' +
+          kelasOptions.join(', ') +
+          ')'
+        );
+
+      }
+
     }
 
   }
@@ -1281,6 +1406,7 @@ async function doLogin(event){
       role:result.user.role,
       unitName:result.user.unitName,
       unitType:result.user.unitType,
+      tingkat:result.user.tingkat,
       username:result.user.username
     };
 
@@ -1369,21 +1495,33 @@ function renderUnit(){
       .toLowerCase()
       .includes('sekolah');
 
-  const schoolTabs = [
-    ['siswa','Siswa'],
-    ['guru','Guru'],
-    ['tendik','Tendik'],
-    ['penjaga','Penjaga Sekolah']
-  ];
-
-
   let tabs = isSchool
-    ? schoolTabs
+    ? schoolTabsForTingkat(session.tingkat)
     : [['posyandu','Posyandu']];
 
 
   if(!tabs.some(x => x[0] === activeTab)){
     activeTab = tabs[0][0];
+  }
+
+
+  if(activeTab === 'siswa'){
+
+    const kelasOptions =
+      kelasOptionsForTingkat(
+        session.tingkat
+      );
+
+    if(
+      kelasOptions.length &&
+      !kelasOptions.includes(kelasCategory)
+    ){
+
+      kelasCategory =
+        kelasOptions[0];
+
+    }
+
   }
 
 
@@ -1402,7 +1540,16 @@ function renderUnit(){
           </h1>
 
           <div class="page-subtitle">
-            ${isSchool ? 'Instansi Sekolah' : 'Instansi Posyandu'}
+            ${
+              isSchool
+              ? 'Instansi Sekolah' +
+                (
+                  session.tingkat
+                  ? ' &middot; Tingkat ' + esc(session.tingkat)
+                  : ''
+                )
+              : 'Instansi Posyandu'
+            }
           </div>
 
         </div>
@@ -1435,7 +1582,11 @@ function renderUnit(){
       ${
         activeTab === 'posyandu'
         ? renderPosyanduCategories()
-        : ''
+        : (
+          activeTab === 'siswa'
+          ? renderKelasCategories()
+          : ''
+        )
       }
 
 
@@ -1530,6 +1681,76 @@ function renderPosyanduCategories(){
 function selectCategory(cat){
 
   posyanduCategory = cat;
+
+  renderUnit();
+
+}
+
+
+/* =========================================================
+   KELAS CATEGORY (SISWA)
+========================================================= */
+
+function renderKelasCategories(){
+
+  const options =
+    kelasOptionsForTingkat(
+      session.tingkat
+    );
+
+  if(!options.length){
+    return '';
+  }
+
+
+  return `
+
+    <div class="category-grid">
+
+      ${options.map(kelas => {
+
+        const count =
+          getCachedRows('siswa')
+            .filter(
+              r => String(r.Kelas || '') === kelas
+            ).length;
+
+
+        return `
+
+          <button
+            class="category ${
+              kelasCategory === kelas
+              ? 'active'
+              : ''
+            }"
+            onclick="selectKelas('${kelas}')"
+          >
+
+            <div class="category-title">
+              Kelas ${kelas}
+            </div>
+
+            <div class="category-count">
+              ${count}
+            </div>
+
+          </button>
+
+        `;
+
+      }).join('')}
+
+    </div>
+
+  `;
+
+}
+
+
+function selectKelas(kelas){
+
+  kelasCategory = kelas;
 
   renderUnit();
 
@@ -1683,6 +1904,17 @@ async function loadStats(types){
     }
 
 
+    if(activeTab === 'siswa'){
+      const areaCat =
+        document.querySelector('.category-grid');
+
+      if(areaCat){
+        areaCat.outerHTML =
+          renderKelasCategories();
+      }
+    }
+
+
   }catch(err){
 
     console.error(err);
@@ -1798,6 +2030,28 @@ function renderTable(
             r.Kategori || ''
           ) === posyanduCategory
       );
+
+  }
+
+
+  if(type === 'siswa'){
+
+    const kelasOptions =
+      kelasOptionsForTingkat(
+        session.tingkat
+      );
+
+    if(kelasOptions.length){
+
+      filtered =
+        filtered.filter(
+          r =>
+            String(
+              r.Kelas || ''
+            ) === kelasCategory
+        );
+
+    }
 
   }
 
@@ -1958,6 +2212,18 @@ function renderTable(
                           }
 
 
+                          if(
+                            f.key === 'kelas'
+                          ){
+
+                            value =
+                              value
+                              ? 'Kelas ' + value
+                              : '-';
+
+                          }
+
+
                           return `<td>
                             ${esc(value || '-')}
                           </td>`;
@@ -2039,6 +2305,10 @@ function getRowValue(row,key){
 
   if(key === 'usiaKehamilan'){
     return row['Usia Kehamilan'] || '';
+  }
+
+  if(key === 'kelas'){
+    return row.Kelas || '';
   }
 
   return '';
@@ -2257,6 +2527,55 @@ function renderField(field,row,type){
           >
             Perempuan
           </option>
+
+        </select>
+
+      </div>
+
+    `;
+
+  }
+
+
+  if(field.type === 'kelas'){
+
+    const options =
+      kelasOptionsForTingkat(
+        session.tingkat
+      );
+
+    if(!options.length){
+      return '';
+    }
+
+    return `
+
+      <div class="form-group">
+
+        <label class="form-label">
+          ${field.label}
+        </label>
+
+        <select
+          class="form-control"
+          id="form_kelas"
+          required
+        >
+
+          <option value="">
+            Pilih Kelas
+          </option>
+
+          ${options.map(k => `
+
+            <option
+              value="${k}"
+              ${value === k ? 'selected' : ''}
+            >
+              Kelas ${k}
+            </option>
+
+          `).join('')}
 
         </select>
 
@@ -2586,7 +2905,8 @@ function downloadTemplate(type){
       'NISN',
       'NIK',
       'Tanggal Lahir',
-      'Jenis Kelamin'
+      'Jenis Kelamin',
+      'Kelas'
     ];
 
     rows = [[
@@ -2594,7 +2914,8 @@ function downloadTemplate(type){
       '1234567890',
       '1600000000000001',
       '2015-01-01',
-      'Laki-laki'
+      'Laki-laki',
+      '1'
     ]];
 
   }
@@ -2759,6 +3080,12 @@ async function importExcel(
             String(
               row.NISN || ''
             ).replace(/\D/g,'');
+
+
+          obj.kelas =
+            String(
+              row.Kelas || ''
+            ).trim();
 
         }
 
@@ -3517,6 +3844,18 @@ async function loadAdminData(type){
                         }
 
 
+                        if(
+                          f.key === 'kelas'
+                        ){
+
+                          value =
+                            value
+                            ? 'Kelas ' + value
+                            : '';
+
+                        }
+
+
                         return `
                           <td>
                             ${esc(value)}
@@ -3590,73 +3929,78 @@ async function loadUsers(){
 
     area.innerHTML = `
 
-      <div class="table-wrap">
+      <div class="user-list">
 
-        <table>
+        ${
+          users.length
+          ? users.map(
+            u => `
 
-          <thead>
+              <div class="user-item">
 
-            <tr>
+                <div class="user-info">
 
-              <th>Username</th>
-              <th>Role</th>
-              <th>Unit</th>
-              <th>Aksi</th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody>
-
-            ${users.map(
-              u => `
-
-                <tr>
-
-                  <td>
+                  <div class="user-name">
                     ${esc(u.username)}
-                  </td>
+                  </div>
 
-                  <td>
+                  <div class="user-meta">
+
                     <span class="badge badge-blue">
                       ${esc(u.role)}
                     </span>
-                  </td>
-
-                  <td>
-                    ${esc(u.unitName)}
-                  </td>
-
-                  <td>
 
                     ${
-                      String(u.username).toLowerCase()
-                      !==
-                      String(session.username).toLowerCase()
-
-                      ? `
-                        <button
-                          class="btn btn-danger btn-sm"
-                          onclick="deleteUser('${esc(u.username)}')"
-                        >
-                          Hapus
-                        </button>
-                      `
-                      : '-'
+                      u.unitType
+                      ? `<span class="badge badge-gold">
+                          ${esc(u.unitType)}
+                        </span>`
+                      : ''
                     }
 
-                  </td>
+                    ${
+                      u.tingkat
+                      ? `<span class="badge badge-green">
+                          ${esc(u.tingkat)}
+                        </span>`
+                      : ''
+                    }
 
-                </tr>
+                  </div>
 
-              `
-            ).join('')}
+                  <div class="user-unit">
+                    ${esc(u.unitName)}
+                  </div>
 
-          </tbody>
+                </div>
 
-        </table>
+
+                <div class="user-actions">
+
+                  ${
+                    String(u.username).toLowerCase()
+                    !==
+                    String(session.username).toLowerCase()
+
+                    ? `
+                      <button
+                        class="btn btn-danger btn-sm"
+                        onclick="deleteUser('${esc(u.username)}')"
+                      >
+                        Hapus
+                      </button>
+                    `
+                    : ''
+                  }
+
+                </div>
+
+              </div>
+
+            `
+          ).join('')
+          : '<div class="empty">Belum ada pengguna.</div>'
+        }
 
       </div>
 
@@ -3760,6 +4104,7 @@ function openUserForm(){
                   id="user_type"
                   class="form-control"
                   required
+                  onchange="toggleTingkatField()"
                 >
 
                   <option value="sekolah">
@@ -3768,6 +4113,37 @@ function openUserForm(){
 
                   <option value="posyandu">
                     Posyandu
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div
+                class="form-group"
+                id="userTingkatGroup"
+              >
+
+                <label class="form-label">
+                  Tingkat Sekolah
+                </label>
+
+                <select
+                  id="user_tingkat"
+                  class="form-control"
+                >
+
+                  <option value="KB">
+                    KB (Siswa &amp; Guru)
+                  </option>
+
+                  <option value="SD">
+                    SD (Kelas 1-6)
+                  </option>
+
+                  <option value="SMP">
+                    SMP (Kelas 7-9)
                   </option>
 
                 </select>
@@ -3804,12 +4180,55 @@ function openUserForm(){
     `
   );
 
+
+  toggleTingkatField();
+
+}
+
+
+function toggleTingkatField(){
+
+  const group =
+    document.getElementById(
+      'userTingkatGroup'
+    );
+
+  const type =
+    document.getElementById(
+      'user_type'
+    );
+
+
+  if(!group) return;
+
+
+  if(
+    type &&
+    type.value === 'sekolah'
+  ){
+
+    group.style.display =
+      'block';
+
+  }else{
+
+    group.style.display =
+      'none';
+
+  }
+
 }
 
 
 async function saveUser(event){
 
   event.preventDefault();
+
+
+  const unitType =
+    document.getElementById(
+      'user_type'
+    ).value;
 
 
   try{
@@ -3834,9 +4253,14 @@ async function saveUser(event){
         ).value.trim(),
 
       unitType:
-        document.getElementById(
-          'user_type'
-        ).value
+        unitType,
+
+      tingkat:
+        unitType === 'sekolah'
+        ? document.getElementById(
+            'user_tingkat'
+          ).value
+        : ''
 
     });
 
@@ -4117,6 +4541,7 @@ function openAnnouncementForm(item=null){
               </button>
 
               <button
+                type="submit"
                 class="btn btn-primary"
               >
                 Simpan
