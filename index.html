@@ -735,7 +735,7 @@ tr:hover td{
 ========================================================= */
 
 const API_URL =
-'https://script.google.com/macros/s/AKfycbxf1p0LcrCn-PS0c6JedIo76cEAQHyXJlJ48EAVyprU8Ed0GhDIVWSc00nCSwmZ4IgB/exec';
+'https://script.google.com/macros/s/AKfycbwnjcwMVX8t2TA_krkxVvRLEmX-M4RQTCyqgHDyTgK1VzlJytI1fWLmzGJQc--TJrsnOg/exec';
 
 const SESSION_KEY = 'sppg_session';
 
@@ -753,6 +753,31 @@ let kelasCategory = '';
 let dataCache = {};
 
 let announcementCache = [];
+
+
+/* =========================================================
+   LOADING HELPER (BARU)
+========================================================= */
+function showLoading(text) {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="modal" id="loadingModal" style="z-index:9999;">
+      <div class="modal-box" style="max-width:320px; text-align:center; padding:35px 20px;">
+        <svg width="45" height="45" viewBox="0 0 50 50" style="margin-bottom:15px;">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="var(--navy)" stroke-width="5" stroke-dasharray="31.4 31.4" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.8s" values="0 25 25;360 25 25"/>
+          </circle>
+        </svg>
+        <h3 style="margin:0 0 8px; color:var(--navy); font-size:16px;">Memproses...</h3>
+        <div id="loadingText" style="color:var(--muted); font-size:13px;">${esc(text)}</div>
+      </div>
+    </div>
+  `);
+}
+
+function hideLoading() {
+  const el = document.getElementById('loadingModal');
+  if (el) el.remove();
+}
 
 
 /* =========================================================
@@ -934,6 +959,10 @@ function normalizeTingkat(tingkat){
 
 
 function kelasOptionsForTingkat(tingkat){
+
+  if(session && session.role === 'admin') {
+    return ['A','B','1','2','3','4','5','6','7','8','9'];
+  }
 
   const t =
     normalizeTingkat(tingkat);
@@ -3039,218 +3068,169 @@ function downloadTemplate(type){
 
 
 /* =========================================================
-   IMPORT EXCEL
+   IMPORT EXCEL (DENGAN PREVIEW & LOADING)
 ========================================================= */
 
-async function importExcel(
-  event,
-  type
-){
+async function importExcel(event, type) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-  const file =
-    event.target.files[0];
+  // 1. Munculkan UI Loading
+  showLoading('Membaca file Excel...');
 
-  if(!file) return;
-
-
-  try{
-
-    const buffer =
-      await file.arrayBuffer();
-
-
-    const workbook =
-      XLSX.read(
-        buffer,
-        {type:'array'}
-      );
-
-
-    const sheet =
-      workbook.Sheets[
-        workbook.SheetNames[0]
-      ];
-
-
-    const rows =
-      XLSX.utils.sheet_to_json(
-        sheet,
-        {defval:''}
-      );
-
+  try {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
     const converted = [];
 
+    rows.forEach(row => {
+      const obj = {
+        nama: row.Nama || '',
+        nik: String(row.NIK || '').replace(/\D/g, ''),
+        tgl: convertExcelDate(row['Tanggal Lahir']),
+        jenisKelamin: normalizeGenderFE(row['Jenis Kelamin'])
+      };
 
-    rows.forEach(
-      row => {
-
-        const obj = {
-
-          nama:
-            row.Nama || '',
-
-          nik:
-            String(
-              row.NIK || ''
-            ).replace(/\D/g,''),
-
-          tgl:
-            convertExcelDate(
-              row['Tanggal Lahir']
-            ),
-
-          jenisKelamin:
-            normalizeGenderFE(
-              row['Jenis Kelamin']
-            )
-
-        };
-
-
-        if(type === 'siswa'){
-
-          obj.nisn =
-            String(
-              row.NISN || ''
-            ).replace(/\D/g,'');
-
-
-          obj.kelas =
-            String(
-              row.Kelas || ''
-            ).trim();
-
-        }
-
-
-        if(type === 'posyandu'){
-
-          obj.kategori =
-            row.Kategori || '';
-
-
-          obj.usiaKehamilan =
-            String(
-              row['Usia Kehamilan'] || ''
-            )
-            .replace(/\D/g,'')
-            .slice(0,1);
-
-        }
-
-
-        converted.push(obj);
-
+      if (type === 'siswa') {
+        obj.nisn = String(row.NISN || '').replace(/\D/g, '');
+        obj.kelas = String(row.Kelas || '').trim();
       }
-    );
 
+      if (type === 'posyandu') {
+        obj.kategori = row.Kategori || '';
+        obj.usiaKehamilan = String(row['Usia Kehamilan'] || '').replace(/\D/g, '').slice(0, 1);
+      }
+
+      converted.push(obj);
+    });
 
     const valid = [];
-
     const errors = [];
 
-
-    converted.forEach(
-      (obj,i) => {
-
-        const error =
-          validateRow(
-            obj,
-            type
-          );
-
-
-        if(error){
-
-          errors.push(
-            'Baris ' +
-            (i + 2) +
-            ': ' +
-            error
-          );
-
-        }else{
-
-          valid.push(obj);
-
-        }
-
+    converted.forEach((obj, i) => {
+      const error = validateRow(obj, type);
+      if (error) {
+        errors.push('Baris ' + (i + 2) + ': ' + error);
+      } else {
+        valid.push(obj);
       }
-    );
+    });
 
+    // Sembunyikan Loading setelah selesai membaca file
+    hideLoading();
 
-    if(!valid.length){
+    // 2. Munculkan Modal Preview Data
+    showImportPreviewModal(type, valid, errors, file.name);
 
-      alert(
-        'Tidak ada data valid.\n\n' +
-        errors.join('\n')
-      );
-
-      return;
-
-    }
-
-
-    const result =
-      await apiPost({
-
-        action:'bulkAdd',
-
-        type,
-
-        rows:valid
-
-      });
-
-
-    delete dataCache[
-      cacheKey(type)
-    ];
-
-
-    await loadTable(type);
-
-
-    let message =
-      result.message || 'Import selesai';
-
-
-    if(errors.length){
-
-      message +=
-        '\n\nData yang tidak masuk:\n' +
-        errors.slice(0,10).join('\n');
-
-      if(errors.length > 10){
-
-        message +=
-          '\n... dan ' +
-          (errors.length - 10) +
-          ' lainnya.';
-
-      }
-
-    }
-
-
-    alert(message);
-
-
-  }catch(err){
-
-    alert(
-      'Import gagal: ' +
-      err.message
-    );
-
+  } catch (err) {
+    hideLoading();
+    alert('Gagal membaca file: ' + err.message);
   }
 
-
+  // Bersihkan input agar bisa upload file yang sama kembali
   event.target.value = '';
-
 }
 
+function showImportPreviewModal(type, valid, errors, fileName) {
+  // Simpan array valid ke variabel global sementara agar mudah dieksekusi nanti
+  window.tempImportData = valid;
+
+  const modalId = 'previewImportModal';
+  let errorHtml = '';
+
+  if (errors.length > 0) {
+    let errList = errors.slice(0, 5).map(e => `<li>${esc(e)}</li>`).join('');
+    if (errors.length > 5) {
+      errList += `<li>...dan ${errors.length - 5} baris lainnya</li>`;
+    }
+    errorHtml = `
+      <div class="notice notice-danger" style="margin-top:15px; text-align:left;">
+        <strong style="display:block; margin-bottom:5px;">Ditemukan ${errors.length} baris tidak valid:</strong>
+        <ul style="margin:0; padding-left:18px; font-size:12px;">
+          ${errList}
+        </ul>
+        <div style="font-size:11px; margin-top:6px; opacity:0.8;">(Baris yang error akan otomatis diabaikan)</div>
+      </div>
+    `;
+  }
+
+  let validHtml = '';
+  if (valid.length > 0) {
+    validHtml = `
+      <div class="notice notice-success" style="text-align:left;">
+        <strong>${valid.length} data valid siap diimpor.</strong>
+      </div>
+    `;
+  } else {
+    validHtml = `
+      <div class="notice notice-danger" style="text-align:left;">
+        <strong>Tidak ada data valid yang bisa diimpor.</strong>
+      </div>
+    `;
+  }
+
+  const html = `
+    <div class="modal" id="${modalId}">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3 class="modal-title">Preview Import Excel</h3>
+          <button class="close" onclick="document.getElementById('${modalId}').remove()">×</button>
+        </div>
+        <div class="modal-body" style="text-align:center;">
+          <p style="margin-top:0; font-size:14px; color:var(--muted);">
+            Menganalisis file: <strong style="color:var(--text);">${esc(fileName)}</strong>
+          </p>
+          ${validHtml}
+          ${errorHtml}
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-light" onclick="document.getElementById('${modalId}').remove()">Batal</button>
+          <button class="btn btn-primary" onclick="executeImport('${type}', '${modalId}')" ${valid.length === 0 ? 'disabled' : ''}>
+            Impor ${valid.length} Data
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function executeImport(type, modalId) {
+  const valid = window.tempImportData || [];
+  if (!valid.length) return;
+
+  // Hapus modal preview
+  document.getElementById(modalId).remove();
+  
+  // Munculkan kembali UI Loading
+  showLoading('Mengunggah ' + valid.length + ' data ke server...');
+
+  try {
+    const result = await apiPost({
+      action: 'bulkAdd',
+      type,
+      rows: valid
+    });
+
+    // Refresh tabel
+    delete dataCache[cacheKey(type)];
+    await loadTable(type);
+
+    hideLoading();
+    toast(result.message || 'Import selesai');
+    
+  } catch (err) {
+    hideLoading();
+    alert('Import gagal: ' + err.message);
+  }
+  
+  // Bersihkan memori data sementara
+  window.tempImportData = null;
+}
 
 function convertExcelDate(value){
 
