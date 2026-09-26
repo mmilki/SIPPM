@@ -115,6 +115,7 @@ button{
   display:flex;
   align-items:center;
   gap:10px;
+  position:relative;
 }
 
 .user-pill{
@@ -122,6 +123,52 @@ button{
   padding:9px 13px;
   border-radius:30px;
   font-size:13px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.user-dropdown{
+  position:absolute;
+  top:calc(100% + 8px);
+  right:0;
+  background:white;
+  color:var(--text);
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
+  width:200px;
+  display:none;
+  z-index:1000;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+
+.user-dropdown.show{
+  display:block;
+}
+
+.user-dropdown-item{
+  padding:11px 15px;
+  font-size:13px;
+  font-weight:700;
+  background:white;
+  border:0;
+  width:100%;
+  text-align:left;
+  display:block;
+  transition:.15s;
+  color:var(--navy);
+  border-bottom:1px solid var(--border);
+}
+
+.user-dropdown-item:last-child{
+  border-bottom:0;
+  color:var(--danger);
+}
+
+.user-dropdown-item:hover{
+  background:#f4f7fb;
 }
 
 .container{
@@ -572,7 +619,7 @@ tr:hover td{
 
 .admin-grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr;
   gap:20px;
 }
 
@@ -665,10 +712,6 @@ tr:hover td{
 @media(max-width:1000px){
   .stats{
     grid-template-columns:repeat(3,1fr);
-  }
-
-  .admin-grid{
-    grid-template-columns:1fr;
   }
 }
 
@@ -1499,6 +1542,8 @@ async function doLogin(event){
 
 function header(){
 
+  const isAdmin = session.role === 'admin';
+
   return `
 
     <header class="header">
@@ -1528,16 +1573,32 @@ function header(){
 
         <div class="header-right">
 
-          <div class="user-pill">
-            ${esc(session.username || '')}
+          <div
+            class="user-pill"
+            ${isAdmin ? 'onclick="toggleUserDropdown(event)"' : ''}
+          >
+            <span>${esc(session.username || '')}</span>
+            ${isAdmin ? '<span style="font-size:10px;">▼</span>' : ''}
           </div>
 
-          <button
-            class="btn btn-light btn-sm"
-            onclick="logout()"
-          >
-            Keluar
-          </button>
+          ${
+            isAdmin
+            ? `
+              <div class="user-dropdown" id="userDropdownMenu">
+                <button class="user-dropdown-item" onclick="openUserForm()">+ Tambah User</button>
+                <button class="user-dropdown-item" onclick="openManageUsersModal()">Kelola User</button>
+                <button class="user-dropdown-item" onclick="logout()">Keluar</button>
+              </div>
+            `
+            : `
+              <button
+                class="btn btn-light btn-sm"
+                onclick="logout()"
+              >
+                Keluar
+              </button>
+            `
+          }
 
         </div>
 
@@ -1548,6 +1609,22 @@ function header(){
   `;
 
 }
+
+function toggleUserDropdown(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('userDropdownMenu');
+  if (menu) {
+    menu.classList.toggle('show');
+  }
+}
+
+// Tutup dropdown jika klik di luar
+window.addEventListener('click', function() {
+  const menu = document.getElementById('userDropdownMenu');
+  if (menu) {
+    menu.classList.remove('show');
+  }
+});
 
 
 /* =========================================================
@@ -1680,7 +1757,7 @@ function renderUnit(){
 function switchTab(type){
 
   activeTab = type;
-  searchQuery = ''; // Reset pencarian saat pindah tab
+  searchQuery = '';
 
   renderUnit();
 
@@ -2125,7 +2202,6 @@ function renderTable(
   }
 
 
-  // Filter berdasarkan Pencarian Nama atau NIK
   if(searchQuery.trim()){
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(r => {
@@ -2372,7 +2448,6 @@ function renderTable(
 
 function onSearchInput(e){
   searchQuery = e.target.value;
-  // Render ulang tabel instansi dengan filter pencarian aktif tanpa fetch ulang ke server
   const area = document.getElementById('tableArea');
   if(area){
     renderTable(area, activeTab, getCachedRows(activeTab), false);
@@ -2983,7 +3058,7 @@ async function deleteRow(
 
 
 /* =========================================================
-   TEMPLATE EXCEL (DENGAN PETUNJUK PENGISIAN)
+   TEMPLATE EXCEL
 ========================================================= */
 
 function downloadTemplate(type){
@@ -3004,7 +3079,7 @@ function downloadTemplate(type){
       ['4. Tanggal Lahir wajib menggunakan format YYYY-MM-DD (Contoh: 2015-05-20).'],
       ['5. Jenis Kelamin hanya diisi: Laki-laki atau Perempuan.'],
       ['6. Kolom Kelas diisi sesuai tingkat instansi (Contoh SD: 1 s.d. 6, SMP: 7 s.d. 9, KB: A atau B).'],
-      [''] // Baris kosong pemisah
+      ['']
     ];
     headers = [
       'Nama',
@@ -3089,7 +3164,6 @@ function downloadTemplate(type){
     ];
   }
 
-  // Gabungkan instruksi dan header/data ke dalam array of arrays (AOA)
   const combinedData = [...instructions, headers, ...rows];
 
   const ws =
@@ -3114,7 +3188,7 @@ function downloadTemplate(type){
 
 
 /* =========================================================
-   IMPORT EXCEL (DENGAN PREVIEW & LOADING)
+   IMPORT EXCEL
 ========================================================= */
 
 async function importExcel(event, type) {
@@ -3129,7 +3203,6 @@ async function importExcel(event, type) {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-    // Deteksi baris header otomatis (mencari baris yang mengandung kolom 'Nama' atau 'NIK')
     let headerRowIndex = -1;
     for(let i = 0; i < rawData.length; i++){
       const rowStr = rawData[i].map(c => String(c).trim().toLowerCase());
@@ -3152,7 +3225,6 @@ async function importExcel(event, type) {
         rows.push(obj);
       }
     } else {
-      // Fallback ke metode lama jika baris petunjuk tidak terdeteksi
       rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
     }
 
@@ -3609,57 +3681,30 @@ async function renderAdmin(){
 
         </div>
 
-
-        <div>
-
-          <div class="card admin-panel">
-
-            <h2 class="section-title">
-              Manajemen User
-            </h2>
-
-            <button
-              class="btn btn-primary"
-              onclick="openUserForm()"
-            >
-              + Tambah User
-            </button>
-
-            <div
-              id="usersArea"
-              style="margin-top:15px"
-            >
-              Memuat...
-            </div>
-
-          </div>
+      </div>
 
 
-          <div
-            class="card admin-panel"
-            style="margin-top:20px"
-          >
+      <div
+        class="card admin-panel"
+        style="margin-top:20px"
+      >
 
-            <h2 class="section-title">
-              Pengumuman
-            </h2>
+        <h2 class="section-title">
+          Pengumuman
+        </h2>
 
-            <button
-              class="btn btn-success"
-              onclick="openAnnouncementForm()"
-            >
-              + Tambah Pengumuman
-            </button>
+        <button
+          class="btn btn-success"
+          onclick="openAnnouncementForm()"
+        >
+          + Tambah Pengumuman
+        </button>
 
-            <div
-              id="adminAnnouncementArea"
-              style="margin-top:15px"
-            >
-              Memuat...
-            </div>
-
-          </div>
-
+        <div
+          id="adminAnnouncementArea"
+          style="margin-top:15px"
+        >
+          Memuat...
         </div>
 
       </div>
@@ -3672,8 +3717,6 @@ async function renderAdmin(){
   loadAdminStats();
 
   loadAdminData(activeTab);
-
-  loadUsers();
 
   loadAdminAnnouncements();
 
@@ -3851,7 +3894,6 @@ async function loadAdminData(type){
     }
 
 
-    // Filter pencarian admin berdasarkan Nama atau NIK
     if(searchQuery.trim()){
       const q = searchQuery.toLowerCase();
       rows = rows.filter(r => {
@@ -4048,119 +4090,84 @@ function onAdminSearchInput(e){
 
 
 /* =========================================================
-   USERS ADMIN
+   USERS ADMIN (MODAL KELOLA USER)
 ========================================================= */
 
-async function loadUsers(){
+async function openManageUsersModal(){
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    `
+      <div class="modal" id="manageUsersModal">
+        <div class="modal-box" style="max-width:700px;">
+          <div class="modal-head">
+            <h3 class="modal-title">Kelola Pengguna (User)</h3>
+            <button class="close" onclick="document.getElementById('manageUsersModal').remove()">×</button>
+          </div>
+          <div class="modal-body">
+            <button class="btn btn-primary btn-sm" style="margin-bottom:15px;" onclick="openUserForm()">+ Tambah User Baru</button>
+            <div id="modalUsersArea">Memuat daftar user...</div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn btn-light" onclick="document.getElementById('manageUsersModal').remove()">Tutup</button>
+          </div>
+        </div>
+      </div>
+    `
+  );
+  loadModalUsers();
+}
 
-  const area =
-    document.getElementById(
-      'usersArea'
-    );
-
+async function loadModalUsers(){
+  const area = document.getElementById('modalUsersArea');
   if(!area) return;
 
-
-  try{
-
-    const result =
-      await apiGet({
-        action:'users'
-      });
-
-
-    const users =
-      result.users || [];
-
+  try {
+    const result = await apiGet({ action:'users' });
+    const users = result.users || [];
 
     area.innerHTML = `
-
       <div class="user-list">
-
         ${
           users.length
           ? users.map(
             u => `
-
               <div class="user-item">
-
                 <div class="user-info">
-
-                  <div class="user-name">
-                    ${esc(u.username)}
-                  </div>
-
+                  <div class="user-name">${esc(u.username)}</div>
                   <div class="user-meta">
-
-                    <span class="badge badge-blue">
-                      ${esc(u.role)}
-                    </span>
-
-                    ${
-                      u.unitType
-                      ? `<span class="badge badge-gold">
-                          ${esc(u.unitType)}
-                        </span>`
-                      : ''
-                    }
-
-                    ${
-                      u.tingkat
-                      ? `<span class="badge badge-green">
-                          ${esc(u.tingkat)}
-                        </span>`
-                      : ''
-                    }
-
+                    <span class="badge badge-blue">${esc(u.role)}</span>${u.unitType ? `<span class="badge badge-gold">${esc(u.unitType)}</span>` : ''}
+                    ${u.tingkat ? `<span class="badge badge-green">${esc(u.tingkat)}</span>` : ''}
                   </div>
-
-                  <div class="user-unit">
-                    ${esc(u.unitName)}
-                  </div>
-
+                  <div class="user-unit">${esc(u.unitName)}</div>
                 </div>
-
-
                 <div class="user-actions">
-
                   ${
-                    String(u.username).toLowerCase()
-                    !==
-                    String(session.username).toLowerCase()
-
-                    ? `
-                      <button
-                        class="btn btn-danger btn-sm"
-                        onclick="deleteUser('${esc(u.username)}')"
-                      >
-                        Hapus
-                      </button>
-                    `
+                    String(u.username).toLowerCase() !== String(session.username).toLowerCase()
+                    ? `<button class="btn btn-danger btn-sm" onclick="deleteUserModal('${esc(u.username)}')">Hapus</button>`
                     : ''
                   }
-
                 </div>
-
               </div>
-
             `
           ).join('')
           : '<div class="empty">Belum ada pengguna.</div>'
         }
-
       </div>
-
     `;
-
-  }catch(err){
-
-    area.innerHTML =
-      `<div class="notice notice-danger">
-        ${esc(err.message)}
-      </div>`;
-
+  } catch(err){
+    area.innerHTML = `<div class="notice notice-danger">${esc(err.message)}</div>`;
   }
+}
 
+async function deleteUserModal(username){
+  if(!confirm('Hapus user ' + username + '?')) return;
+  try {
+    await apiPost({ action:'deleteUser', username });
+    loadModalUsers();
+    toast('User berhasil dihapus');
+  } catch(err){
+    toast(err.message);
+  }
 }
 
 
@@ -4416,49 +4423,11 @@ async function saveUser(event){
     ).remove();
 
 
-    loadUsers();
+    loadModalUsers();
 
 
     toast(
       'User berhasil ditambahkan'
-    );
-
-
-  }catch(err){
-
-    toast(err.message);
-
-  }
-
-}
-
-
-async function deleteUser(username){
-
-  if(!confirm(
-    'Hapus user ' +
-    username +
-    '?'
-  )){
-    return;
-  }
-
-
-  try{
-
-    await apiPost({
-
-      action:'deleteUser',
-
-      username
-
-    });
-
-
-    loadUsers();
-
-    toast(
-      'User berhasil dihapus'
     );
 
 
