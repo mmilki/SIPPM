@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<title>SPPG Ogan Ilir Sungai Pinang III</title>
+<title>SIPPM - Sistem Pendataan Penerima Manfaat</title>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -899,12 +899,32 @@ function normalizeGenderFE(value){
 }
 
 
-function kelasOptionsForTingkat(tingkat){
+function normalizeTingkat(tingkat){
 
   const t =
     String(tingkat || '')
       .trim()
       .toUpperCase();
+
+  if(t === 'KB' || t.includes('KB')){
+    return 'KB';
+  }
+
+  if(t === 'SD' || t.includes('SEKOLAH DASAR')){
+    return 'SD';
+  }
+
+  if(t === 'SMP' || t.includes('SEKOLAH MENENGAH PERTAMA')){
+    return 'SMP';
+  }
+
+  return t;
+}
+
+
+function kelasOptionsForTingkat(tingkat){
+
+  const t = normalizeTingkat(tingkat);
 
   if(t === 'SD'){
     return ['1','2','3','4','5','6'];
@@ -914,6 +934,7 @@ function kelasOptionsForTingkat(tingkat){
     return ['7','8','9'];
   }
 
+  // KB tidak menggunakan pilihan kelas.
   return [];
 
 }
@@ -921,11 +942,9 @@ function kelasOptionsForTingkat(tingkat){
 
 function schoolTabsForTingkat(tingkat){
 
-  const t =
-    String(tingkat || '')
-      .trim()
-      .toUpperCase();
+  const t = normalizeTingkat(tingkat);
 
+  // KB hanya memiliki data Siswa dan Guru.
   if(t === 'KB'){
 
     return [
@@ -1301,15 +1320,15 @@ function renderLogin(){
       <div class="card login-card">
 
         <div class="login-logo">
-          SPPG
+          SIPPM
         </div>
 
         <h1 class="login-title">
-          SPPG Ogan Ilir
+          SIPPM
         </h1>
 
         <div class="login-sub">
-          Sungai Pinang III
+          Sistem Pendataan Penerima Manfaat
         </div>
 
         <div id="loginNotice"></div>
@@ -1442,13 +1461,13 @@ function header(){
         <div class="brand">
 
           <div class="logo">
-            SPPG
+            SIPPM
           </div>
 
           <div>
 
             <div class="brand-title">
-              SPPG OGAN ILIR SUNGAI PINANG III
+              SIPPM
             </div>
 
             <div class="brand-sub">
@@ -1596,7 +1615,7 @@ function renderUnit(){
 
 
     <div class="footer">
-      SPPG Ogan Ilir Sungai Pinang III
+      SIPPM - Sistem Pendataan Penerima Manfaat
     </div>
 
   `;
