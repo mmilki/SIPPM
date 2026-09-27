@@ -22,6 +22,7 @@
   --muted:#6d7788;
   --border:#dfe5ee;
   --danger:#d9534f;
+  --warning:#f0ad4e;
   --shadow:0 8px 28px rgba(7,30,73,.09);
   --radius:18px;
 }
@@ -517,6 +518,12 @@ tr:hover td{
   color:#9d2f2b;
 }
 
+.badge-warning{
+  background:#fcf8e3;
+  color:#8a6d3b;
+  border: 1px solid #faebcc;
+}
+
 .category-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -648,6 +655,12 @@ tr:hover td{
 .notice-success{
   background:#e8f7dc;
   color:#34741a;
+}
+
+.notice-warning{
+  background:#fcf8e3;
+  color:#8a6d3b;
+  border: 1px solid #faebcc;
 }
 
 .hidden-file{
@@ -981,7 +994,7 @@ async function apiPost(payload = {}) {
 
 
 /* =========================================================
-   HELPERS
+   HELPERS & AGE / WARNING UTILS FOR BALITA
 ========================================================= */
 
 function esc(value){
@@ -1181,6 +1194,48 @@ function formatDateTime(value){
     }
   );
 
+}
+
+
+// Fungsi untuk menghitung umur secara otomatis (tahun & bulan) berdasarkan tanggal lahir
+function calculateAgeDetail(birthDateStr) {
+  if (!birthDateStr) return { years: 0, months: 0, text: '-' };
+  const birth = new Date(birthDateStr);
+  const today = new Date();
+  if (isNaN(birth.getTime())) return { years: 0, months: 0, text: '-' };
+
+  let years = today.getFullYear() - birth.getFullYear();
+  let months = today.getMonth() - birth.getMonth();
+  let days = today.getDate() - birth.getDate();
+
+  if (days < 0) {
+    months--;
+  }
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  let text = '';
+  if (years > 0) text += `${years} tahun `;
+  if (months > 0 || years === 0) text += `${months} bulan`;
+  return { years, months, text: text.trim() };
+}
+
+// Cek apakah balita berumur lebih dari 5 tahun (invalid/warning)
+function getBalitaWarning(birthDateStr) {
+  const age = calculateAgeDetail(birthDateStr);
+  // Balita adalah anak di bawah 5 tahun (< 5 tahun). Jika >= 5 tahun, berikan warning.
+  if (age.years >= 5) {
+    return {
+      isWarning: true,
+      message: `Umur lebih dari 5 tahun (${age.text})`
+    };
+  }
+  return {
+    isWarning: false,
+    message: 'Normal'
+  };
 }
 
 
@@ -1446,6 +1501,8 @@ function validateRow(obj,type){
       }
 
     }
+    
+    // Untuk balita, jika umur > 5 tahun, data tetap valid disimpan sebagai penerima invalid dengan warning (tidak diblokir).
 
   }
 
@@ -2301,6 +2358,17 @@ function renderTable(
   const fields =
     fieldsFor(type);
 
+  // Jika Posyandu Balita, hitung jumlah warning
+  let warningCount = 0;
+  if (type === 'posyandu' && posyanduCategory === 'Balita') {
+    filtered.forEach(r => {
+      const tgl = getRowValue(r, 'tgl');
+      if (getBalitaWarning(tgl).isWarning) {
+        warningCount++;
+      }
+    });
+  }
+
 
   area.innerHTML = `
 
@@ -2357,6 +2425,18 @@ function renderTable(
 
     </div>
 
+    ${
+      (type === 'posyandu' && posyanduCategory === 'Balita' && warningCount > 0)
+      ? `
+        <div class="notice notice-warning" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>⚠️ Perhatian:</strong> Ditemukan <strong>${warningCount}</strong> balita dengan umur lebih dari 5 tahun. Data tetap tersimpan sebagai penerima invalid dengan catatan peringatan.
+          </div>
+        </div>
+      `
+      : ''
+    }
+
 
     <div class="card table-card">
 
@@ -2391,6 +2471,12 @@ function renderTable(
                   f => `<th>${esc(f.label)}</th>`
                 ).join('')}
 
+                ${
+                  (type === 'posyandu' && posyanduCategory === 'Balita')
+                  ? '<th>Umur (Otomatis)</th><th>Peringatan / Warning</th>'
+                  : ''
+                }
+
                 <th>Aksi</th>
 
               </tr>
@@ -2402,6 +2488,14 @@ function renderTable(
 
               ${filtered.map(
                 (row,i) => {
+
+                  let balitaWarningObj = { isWarning: false, message: '-' };
+                  let balitaAgeText = '-';
+                  if (type === 'posyandu' && posyanduCategory === 'Balita') {
+                    const tglVal = getRowValue(row, 'tgl');
+                    balitaAgeText = calculateAgeDetail(tglVal).text;
+                    balitaWarningObj = getBalitaWarning(tglVal);
+                  }
 
                   return `
 
@@ -2481,6 +2575,21 @@ function renderTable(
 
                         }
                       ).join('')}
+
+                      ${
+                        (type === 'posyandu' && posyanduCategory === 'Balita')
+                        ? `
+                          <td><strong>${esc(balitaAgeText)}</strong></td>
+                          <td>
+                            ${
+                              balitaWarningObj.isWarning
+                              ? `<span class="badge badge-warning" title="Penerima Invalid">⚠️ ${esc(balitaWarningObj.message)}</span>`
+                              : `<span class="badge badge-green">Normal</span>`
+                            }
+                          </td>
+                        `
+                        : ''
+                      }
 
 
                       <td>
@@ -3218,7 +3327,7 @@ function downloadTemplate(type){
       ['1. Jangan mengubah, menghapus, atau memindahkan urutan nama kolom (header).'],
       ['2. Kategori wajib diisi salah satu dari: Balita, Ibu Hamil, atau Ibu Menyusui.'],
       ['3. Kolom NIK harus tepat 16 digit angka.'],
-      ['4. Tanggal Lahir wajib menggunakan format YYYY-MM-DD.'],
+      ['4. Tanggal Lahir wajib menggunakan format YYYY-MM-DD (Umur Balita akan otomatis dihitung & divalidasi warning jika > 5 tahun).'],
       ['5. Usia Kehamilan khusus Ibu Hamil diisi angka 1, 2, atau 3 (Trimester). Kosongkan untuk Balita/Menyusui.'],
       ['']
     ];
@@ -3562,6 +3671,12 @@ function exportExcel(type){
 
         }
       );
+
+      if (type === 'posyandu' && posyanduCategory === 'Balita') {
+        const tglVal = getRowValue(row, 'tgl');
+        obj['Umur'] = calculateAgeDetail(tglVal).text;
+        obj['Peringatan / Warning'] = getBalitaWarning(tglVal).message;
+      }
 
 
       return obj;
@@ -4006,6 +4121,16 @@ async function loadAdminData(type){
     const fields =
       fieldsFor(fetchType);
 
+    let adminBalitaWarningCount = 0;
+    if (type === 'posyandu_balita') {
+      rows.forEach(r => {
+        const tglVal = getRowValue(r, 'tgl');
+        if (getBalitaWarning(tglVal).isWarning) {
+          adminBalitaWarningCount++;
+        }
+      });
+    }
+
 
     area.innerHTML = `
 
@@ -4044,6 +4169,16 @@ async function loadAdminData(type){
 
       </div>
 
+      ${
+        (type === 'posyandu_balita' && adminBalitaWarningCount > 0)
+        ? `
+          <div class="notice notice-warning">
+            <strong>⚠️ Perhatian:</strong> Ditemukan <strong>${adminBalitaWarningCount}</strong> balita dengan umur lebih dari 5 tahun pada laporan ini.
+          </div>
+        `
+        : ''
+      }
+
 
       <!-- Header khusus saat dicetak PDF -->
       <div class="print-header">
@@ -4077,6 +4212,12 @@ async function loadAdminData(type){
                   `<th>${esc(f.label)}</th>`
               ).join('')}
 
+              ${
+                type === 'posyandu_balita'
+                ? '<th>Umur (Otomatis)</th><th>Peringatan / Warning</th>'
+                : ''
+              }
+
             </tr>
 
           </thead>
@@ -4087,96 +4228,123 @@ async function loadAdminData(type){
             ${
               rows.length
               ? rows.map(
-                (r,i) => `
+                (r,i) => {
 
-                  <tr>
+                  let balitaWarningObj = { isWarning: false, message: '-' };
+                  let balitaAgeText = '-';
+                  if (type === 'posyandu_balita') {
+                    const tglVal = getRowValue(r, 'tgl');
+                    balitaAgeText = calculateAgeDetail(tglVal).text;
+                    balitaWarningObj = getBalitaWarning(tglVal);
+                  }
 
-                    <td>${i+1}</td>
+                  return `
 
-                    <td>
-                      ${esc(r.Unit || '')}
-                    </td>
+                    <tr>
 
-                    ${
-                      fetchType === 'posyandu'
-                      ? `<td>
-                          ${esc(r.Kategori || '')}
-                        </td>`
-                      : ''
-                    }
+                      <td>${i+1}</td>
 
-                    ${fields.map(
-                      f => {
+                      <td>
+                        ${esc(r.Unit || '')}
+                      </td>
 
-                        let value =
-                          getRowValue(
-                            r,
-                            f.key
-                          );
-
-
-                        if(
-                          f.key ===
-                          'jenisKelamin'
-                        ){
-
-                          value =
-                            normalizeGenderFE(
-                              value
-                            );
-
-                        }
-
-
-                        if(
-                          f.key === 'tgl'
-                        ){
-
-                          value =
-                            formatDate(
-                              value
-                            );
-
-                        }
-
-
-                        if(
-                          f.key ===
-                          'usiaKehamilan'
-                        ){
-
-                          value =
-                            value
-                            ? 'Trimester ' + value
-                            : '';
-
-                        }
-
-
-                        if(
-                          f.key === 'kelas'
-                        ){
-
-                          value =
-                            value
-                            ? 'Kelas ' + value
-                            : '';
-
-                        }
-
-
-                        return `
-                          <td>
-                            ${esc(value)}
-                          </td>
-                        `;
-
+                      ${
+                        fetchType === 'posyandu'
+                        ? `<td>
+                            ${esc(r.Kategori || '')}
+                          </td>`
+                        : ''
                       }
-                    ).join('')}
 
-                  </tr>
+                      ${fields.map(
+                        f => {
 
-                `
+                          let value =
+                            getRowValue(
+                              r,
+                              f.key
+                            );
+
+
+                          if(
+                            f.key ===
+                            'jenisKelamin'
+                          ){
+
+                            value =
+                              normalizeGenderFE(
+                                value
+                              );
+
+                          }
+
+
+                          if(
+                            f.key === 'tgl'
+                          ){
+
+                            value =
+                              formatDate(
+                                value
+                              );
+
+                          }
+
+
+                          if(
+                            f.key ===
+                            'usiaKehamilan'
+                          ){
+
+                            value =
+                              value
+                              ? 'Trimester ' + value
+                              : '';
+
+                          }
+
+
+                          if(
+                            f.key === 'kelas'
+                          ){
+
+                            value =
+                              value
+                              ? 'Kelas ' + value
+                              : '';
+
+                          }
+
+
+                          return `
+                            <td>
+                              ${esc(value)}
+                            </td>
+                          `;
+
+                        }
+                      ).join('')}
+
+                      ${
+                        type === 'posyandu_balita'
+                        ? `
+                          <td><strong>${esc(balitaAgeText)}</strong></td>
+                          <td>
+                            ${
+                              balitaWarningObj.isWarning
+                              ? `<span class="badge badge-warning">⚠️ ${esc(balitaWarningObj.message)}</span>`
+                              : `<span class="badge badge-green">Normal</span>`
+                            }
+                          </td>
+                        `
+                        : ''
+                      }
+
+                    </tr>
+
+                  `;
+
+                }
               ).join('')
               : `
                 <tr>
