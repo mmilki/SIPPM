@@ -3254,6 +3254,8 @@ async function deleteRow(
 
 /* =========================================================
    TEMPLATE EXCEL
+   FIX: Kolom NISN diformat sebagai teks agar leading zero
+        tidak hilang saat dibuka di Excel.
 ========================================================= */
 
 function downloadTemplate(type){
@@ -3270,7 +3272,7 @@ function downloadTemplate(type){
       ['PETUNJUK PENGISIAN TEMPLATE EXCEL SISWA:'],
       ['1. Jangan mengubah, menghapus, atau memindahkan urutan nama kolom (header).'],
       ['2. Kolom NIK harus tepat 16 digit angka.'],
-      ['3. Kolom NISN diisi 5 sampai 10 digit angka.'],
+      ['3. Kolom NISN diisi 5 sampai 10 digit angka. PENTING: Kolom NISN sudah diformat Teks agar angka 0 di depan tidak hilang.'],
       ['4. Tanggal Lahir wajib menggunakan format YYYY-MM-DD (Contoh: 2015-05-20).'],
       ['5. Jenis Kelamin hanya diisi: Laki-laki atau Perempuan.'],
       ['6. Kolom Kelas diisi sesuai tingkat instansi (Contoh SD: 1 s.d. 6, SMP: 7 s.d. 9, KB: A atau B).'],
@@ -3286,7 +3288,7 @@ function downloadTemplate(type){
     ];
     rows = [[
       'Contoh Nama Siswa',
-      '1234567890',
+      '0123456789',
       '1600000000000001',
       '2015-01-01',
       'Laki-laki',
@@ -3366,6 +3368,26 @@ function downloadTemplate(type){
       combinedData
     );
 
+  // FIX 2: Format kolom NISN sebagai teks agar leading zero tidak hilang saat dibuka Excel
+  if (type === 'siswa') {
+    const headerOffset = instructions.length; // index baris header (0-based)
+    const templateHeaders = combinedData[headerOffset];
+    const nisnColIdx = templateHeaders ? templateHeaders.indexOf('NISN') : -1;
+    if (nisnColIdx >= 0) {
+      const colLetter = XLSX.utils.encode_col(nisnColIdx);
+      // Format sel data (baris setelah header) sebagai teks
+      for (let r = headerOffset + 1; r < combinedData.length; r++) {
+        const cellAddr = colLetter + (r + 1);
+        if (ws[cellAddr]) {
+          ws[cellAddr].t = 's'; // type string
+          ws[cellAddr].z = '@'; // format teks
+          ws[cellAddr].v = String(ws[cellAddr].v || '');
+          ws[cellAddr].w = String(ws[cellAddr].v || '');
+        }
+      }
+    }
+  }
+
   XLSX.utils.book_append_sheet(
     wb,
     ws,
@@ -3384,6 +3406,10 @@ function downloadTemplate(type){
 
 /* =========================================================
    IMPORT EXCEL
+   FIX: raw:false agar nilai sel teks (termasuk NISN dengan
+        leading zero) dibaca sebagai string, bukan number.
+        NISN tidak di-strip non-digit supaya leading zero
+        yang tersimpan sebagai string tetap utuh.
 ========================================================= */
 
 async function importExcel(event, type) {
@@ -3396,7 +3422,11 @@ async function importExcel(event, type) {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'array' });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+    // FIX 3: raw:false → XLSX membaca nilai sesuai format sel.
+    // Sel yang diformat Teks (format '@') akan muncul sebagai string "0123456789",
+    // bukan number 123456789, sehingga leading zero pada NISN tetap terjaga.
+    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false });
 
     let headerRowIndex = -1;
     for(let i = 0; i < rawData.length; i++){
@@ -3420,7 +3450,7 @@ async function importExcel(event, type) {
         rows.push(obj);
       }
     } else {
-      rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      rows = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: false });
     }
 
     const converted = [];
@@ -3434,7 +3464,9 @@ async function importExcel(event, type) {
       };
 
       if (type === 'siswa') {
-        obj.nisn = String(row.NISN || '').replace(/\D/g, '');
+        // FIX 1: Ambil NISN sebagai string tanpa strip non-digit,
+        // agar leading zero (mis. "0123456789") tetap utuh.
+        obj.nisn = String(row.NISN ?? '').trim();
         obj.kelas = String(row.Kelas || '').trim();
       }
 
