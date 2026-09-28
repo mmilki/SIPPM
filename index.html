@@ -877,7 +877,7 @@ tr:hover td{
 ========================================================= */
 
 const API_URL =
-'https://script.google.com/macros/s/AKfycbxevY5uZAgB1oPoYZjYDVf104bIxZ79i8WgFNqmAvkioYoTIJ-GjDpNHVA8Tz3_8DOWyQ/exec';
+'https://script.google.com/macros/s/AKfycbx6tWHWzBumOOgSzGbUHsaqCy-OSjoWOae7mtoYJyFfisDKi04obIWqwvtVR88FWujp8w/exec';
 
 const SESSION_KEY = 'sppg_session';
 
@@ -1244,6 +1244,22 @@ function getBalitaWarning(birthDateStr) {
 ========================================================= */
 
 function fieldsFor(type){
+  const base = baseFieldsFor(type);
+  if(!base.length) return base;
+  return base.concat([
+    { key:'alergi', label:'Alergi', type:'alergi', required:true },
+    { key:'ketAlergen', label:'Keterangan Alergen', type:'ketAlergen', required:false }
+  ]);
+}
+
+function normalizeAlergiFE(value){
+  const v = String(value || '').trim().toLowerCase();
+  if(['ya','y','iya','ada','yes'].includes(v)) return 'Ya';
+  if(['tidak','t','tdk','tidak ada','no','-'].includes(v)) return 'Tidak';
+  return '';
+}
+
+function baseFieldsFor(type){
 
   if(type === 'siswa'){
 
@@ -1395,6 +1411,18 @@ function validateRow(obj,type){
 
   if(!/^\d{16}$/.test(nik)){
     return 'NIK harus tepat 16 digit';
+  }
+
+
+  if(normalizeAlergiFE(obj.alergi) === ''){
+    return 'Alergi wajib diisi (Ya atau Tidak)';
+  }
+
+  if(
+    normalizeAlergiFE(obj.alergi) === 'Ya' &&
+    !String(obj.ketAlergen || '').trim()
+  ){
+    return 'Keterangan alergen wajib diisi jika alergi = Ya';
   }
 
 
@@ -2680,6 +2708,14 @@ function getRowValue(row,key){
     return row.Kelas || '';
   }
 
+  if(key === 'alergi'){
+    return row.Alergi || '';
+  }
+
+  if(key === 'ketAlergen'){
+    return row['Keterangan Alergen'] || '';
+  }
+
   return '';
 
 }
@@ -2828,6 +2864,7 @@ function openForm(type,row=null){
 
 
   togglePregnancyField();
+  toggleAlergenField();
 
 }
 
@@ -2859,6 +2896,42 @@ function renderField(field,row,type){
          .slice(0,10);
 
     }
+
+  }
+
+
+  if(field.type === 'alergi'){
+
+    return `
+      <div class="form-group">
+        <label class="form-label">${field.label}</label>
+        <select class="form-control" id="form_alergi" required onchange="toggleAlergenField()">
+          <option value="">Pilih Ya / Tidak</option>
+          <option value="Ya" ${value === 'Ya' ? 'selected' : ''}>Ya</option>
+          <option value="Tidak" ${value === 'Tidak' ? 'selected' : ''}>Tidak</option>
+        </select>
+      </div>
+    `;
+
+  }
+
+
+  if(field.type === 'ketAlergen'){
+
+    return `
+      <div class="form-group" id="alergenGroup" style="display:none">
+        <label class="form-label">${field.label}</label>
+        <input
+          id="form_ketAlergen"
+          class="form-control"
+          type="text"
+          maxlength="200"
+          value="${esc(value)}"
+          placeholder="Contoh: Kacang, udang, susu sapi"
+        >
+        <small style="color:#6d7788">Sebutkan semua alergen, pisahkan dengan koma.</small>
+      </div>
+    `;
 
   }
 
@@ -3031,6 +3104,26 @@ function renderField(field,row,type){
 }
 
 
+function toggleAlergenField(){
+
+  const sel = document.getElementById('form_alergi');
+  const group = document.getElementById('alergenGroup');
+  const input = document.getElementById('form_ketAlergen');
+
+  if(!sel || !group || !input) return;
+
+  if(sel.value === 'Ya'){
+    group.style.display = 'block';
+    input.required = true;
+  }else{
+    group.style.display = 'none';
+    input.required = false;
+    input.value = '';
+  }
+
+}
+
+
 function togglePregnancyField(){
 
   const group =
@@ -3114,6 +3207,10 @@ async function saveForm(
     normalizeGenderFE(
       obj.jenisKelamin
     );
+
+  if(obj.alergi !== 'Ya'){
+    obj.ketAlergen = '';
+  }
 
 
   const error =
@@ -3254,8 +3351,6 @@ async function deleteRow(
 
 /* =========================================================
    TEMPLATE EXCEL
-   FIX: Kolom NISN diformat sebagai teks agar leading zero
-        tidak hilang saat dibuka di Excel.
 ========================================================= */
 
 function downloadTemplate(type){
@@ -3272,10 +3367,11 @@ function downloadTemplate(type){
       ['PETUNJUK PENGISIAN TEMPLATE EXCEL SISWA:'],
       ['1. Jangan mengubah, menghapus, atau memindahkan urutan nama kolom (header).'],
       ['2. Kolom NIK harus tepat 16 digit angka.'],
-      ['3. Kolom NISN diisi 5 sampai 10 digit angka. PENTING: Kolom NISN sudah diformat Teks agar angka 0 di depan tidak hilang.'],
+      ['3. Kolom NISN diisi 5 sampai 10 digit angka.'],
       ['4. Tanggal Lahir wajib menggunakan format YYYY-MM-DD (Contoh: 2015-05-20).'],
       ['5. Jenis Kelamin hanya diisi: Laki-laki atau Perempuan.'],
       ['6. Kolom Kelas diisi sesuai tingkat instansi (Contoh SD: 1 s.d. 6, SMP: 7 s.d. 9, KB: A atau B).'],
+      ['7. Kolom Alergi wajib diisi: Ya atau Tidak. Jika Ya, kolom Keterangan Alergen wajib diisi (contoh: Kacang, Udang).'],
       ['']
     ];
     headers = [
@@ -3284,15 +3380,19 @@ function downloadTemplate(type){
       'NIK',
       'Tanggal Lahir',
       'Jenis Kelamin',
-      'Kelas'
+      'Kelas',
+      'Alergi',
+      'Keterangan Alergen'
     ];
     rows = [[
       'Contoh Nama Siswa',
-      '0123456789',
+      '0012345678',
       '1600000000000001',
       '2015-01-01',
       'Laki-laki',
-      '1'
+      '1',
+      'Tidak',
+      ''
     ]];
   }
 
@@ -3307,19 +3407,24 @@ function downloadTemplate(type){
       ['2. Kolom NIK harus tepat 16 digit angka.'],
       ['3. Tanggal Lahir wajib menggunakan format YYYY-MM-DD (Contoh: 1985-12-10).'],
       ['4. Jenis Kelamin hanya diisi: Laki-laki atau Perempuan.'],
+      ['5. Kolom Alergi wajib diisi: Ya atau Tidak. Jika Ya, kolom Keterangan Alergen wajib diisi (contoh: Kacang, Udang).'],
       ['']
     ];
     headers = [
       'Nama',
       'NIK',
       'Tanggal Lahir',
-      'Jenis Kelamin'
+      'Jenis Kelamin',
+      'Alergi',
+      'Keterangan Alergen'
     ];
     rows = [[
       'Contoh Nama',
       '1600000000000001',
       '1985-01-01',
-      'Laki-laki'
+      'Laki-laki',
+      'Tidak',
+      ''
     ]];
   }
 
@@ -3331,6 +3436,7 @@ function downloadTemplate(type){
       ['3. Kolom NIK harus tepat 16 digit angka.'],
       ['4. Tanggal Lahir wajib menggunakan format YYYY-MM-DD (Umur Balita akan otomatis dihitung & divalidasi warning jika > 5 tahun).'],
       ['5. Usia Kehamilan khusus Ibu Hamil diisi angka 1, 2, atau 3 (Trimester). Kosongkan untuk Balita/Menyusui.'],
+      ['6. Kolom Alergi wajib diisi: Ya atau Tidak. Jika Ya, kolom Keterangan Alergen wajib diisi (contoh: Kacang, Udang).'],
       ['']
     ];
     headers = [
@@ -3339,7 +3445,9 @@ function downloadTemplate(type){
       'NIK',
       'Tanggal Lahir',
       'Jenis Kelamin',
-      'Usia Kehamilan'
+      'Usia Kehamilan',
+      'Alergi',
+      'Keterangan Alergen'
     ];
     rows = [
       [
@@ -3348,6 +3456,8 @@ function downloadTemplate(type){
         '1600000000000001',
         '2022-01-01',
         'Laki-laki',
+        '',
+        'Tidak',
         ''
       ],
       [
@@ -3356,7 +3466,9 @@ function downloadTemplate(type){
         '1600000000000002',
         '1995-01-01',
         'Perempuan',
-        '2'
+        '2',
+        'Tidak',
+        ''
       ]
     ];
   }
@@ -3368,25 +3480,26 @@ function downloadTemplate(type){
       combinedData
     );
 
-  // FIX 2: Format kolom NISN sebagai teks agar leading zero tidak hilang saat dibuka Excel
-  if (type === 'siswa') {
-    const headerOffset = instructions.length; // index baris header (0-based)
-    const templateHeaders = combinedData[headerOffset];
-    const nisnColIdx = templateHeaders ? templateHeaders.indexOf('NISN') : -1;
-    if (nisnColIdx >= 0) {
-      const colLetter = XLSX.utils.encode_col(nisnColIdx);
-      // Format sel data (baris setelah header) sebagai teks
-      for (let r = headerOffset + 1; r < combinedData.length; r++) {
-        const cellAddr = colLetter + (r + 1);
-        if (ws[cellAddr]) {
-          ws[cellAddr].t = 's'; // type string
-          ws[cellAddr].z = '@'; // format teks
-          ws[cellAddr].v = String(ws[cellAddr].v || '');
-          ws[cellAddr].w = String(ws[cellAddr].v || '');
-        }
+  // Format kolom NISN & NIK sebagai TEXT (500 baris) agar angka 0 di depan tidak hilang
+  const textHeaders = ['NISN','NIK'];
+  const headerRowIdx = instructions.length;
+  const lastTextRow = headerRowIdx + 500;
+  headers.forEach((h, c) => {
+    if(!textHeaders.includes(h)) return;
+    for(let r = headerRowIdx + 1; r <= lastTextRow; r++){
+      const addr = XLSX.utils.encode_cell({ r, c });
+      if(ws[addr]){
+        ws[addr].t = 's';
+        ws[addr].v = String(ws[addr].v);
+        ws[addr].z = '@';
+      }else{
+        ws[addr] = { t:'s', v:'', z:'@' };
       }
     }
-  }
+  });
+  const rng = XLSX.utils.decode_range(ws['!ref']);
+  if(rng.e.r < lastTextRow) rng.e.r = lastTextRow;
+  ws['!ref'] = XLSX.utils.encode_range(rng);
 
   XLSX.utils.book_append_sheet(
     wb,
@@ -3406,10 +3519,6 @@ function downloadTemplate(type){
 
 /* =========================================================
    IMPORT EXCEL
-   FIX: raw:false agar nilai sel teks (termasuk NISN dengan
-        leading zero) dibaca sebagai string, bukan number.
-        NISN tidak di-strip non-digit supaya leading zero
-        yang tersimpan sebagai string tetap utuh.
 ========================================================= */
 
 async function importExcel(event, type) {
@@ -3420,13 +3529,9 @@ async function importExcel(event, type) {
 
   try {
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array' });
+    const workbook = XLSX.read(buffer, { type: 'array', raw: true });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-    // FIX 3: raw:false → XLSX membaca nilai sesuai format sel.
-    // Sel yang diformat Teks (format '@') akan muncul sebagai string "0123456789",
-    // bukan number 123456789, sehingga leading zero pada NISN tetap terjaga.
-    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false });
+    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
     let headerRowIndex = -1;
     for(let i = 0; i < rawData.length; i++){
@@ -3450,7 +3555,7 @@ async function importExcel(event, type) {
         rows.push(obj);
       }
     } else {
-      rows = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: false });
+      rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
     }
 
     const converted = [];
@@ -3463,10 +3568,13 @@ async function importExcel(event, type) {
         jenisKelamin: normalizeGenderFE(row['Jenis Kelamin'])
       };
 
+      obj.alergi = normalizeAlergiFE(row['Alergi']);
+      obj.ketAlergen = String(row['Keterangan Alergen'] || '').trim();
+      if (obj.alergi !== 'Ya') obj.ketAlergen = '';
+
       if (type === 'siswa') {
-        // FIX 1: Ambil NISN sebagai string tanpa strip non-digit,
-        // agar leading zero (mis. "0123456789") tetap utuh.
-        obj.nisn = String(row.NISN ?? '').trim();
+        obj.nisn = String(row.NISN || '').replace(/\D/g, '');
+        obj._nisnNumeric = typeof row.NISN === 'number';
         obj.kelas = String(row.Kelas || '').trim();
       }
 
@@ -3484,6 +3592,11 @@ async function importExcel(event, type) {
     const errors = [];
 
     converted.forEach((obj, i) => {
+      if (obj._nisnNumeric && obj.nisn.length < 10) {
+        errors.push('Baris data: NISN "' + obj.nisn + '" terbaca sebagai angka sehingga angka 0 di depan kemungkinan hilang. Ubah format kolom NISN menjadi Text lalu ketik ulang (Nama: ' + (obj.nama || 'Kosong') + ')');
+        return;
+      }
+      delete obj._nisnNumeric;
       const error = validateRow(obj, type);
       if (error) {
         errors.push('Baris data: ' + error + ' (Nama: ' + (obj.nama || 'Kosong') + ')');
