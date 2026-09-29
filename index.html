@@ -863,6 +863,25 @@ tr:hover td{
     font-size:20px;
   }
 }
+
+/* ===== TUGAS & DOKUMEN ===== */
+.task-card{padding:20px;margin-bottom:20px}
+.task-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.task-progress{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin:6px 0 16px}
+.task-progress>div{height:100%;background:var(--green2);border-radius:99px;transition:width .3s}
+.task-item{display:flex;gap:14px;padding:14px 0;border-top:1px solid var(--border)}
+.task-check{flex:0 0 28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px}
+.task-item.done .task-check{background:var(--green2);border-color:var(--green2)}
+.task-body{flex:1;min-width:0}
+.task-title{font-weight:700;color:var(--navy);margin-bottom:2px}
+.task-desc{font-size:13px;color:var(--muted);margin-bottom:8px}
+.task-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.task-note{font-size:12px;color:var(--muted)}
+.task-file{margin-top:8px;font-size:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.task-file a{color:var(--navy2);font-weight:600;text-decoration:underline;cursor:pointer;word-break:break-all}
+details.task-admin{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;background:#fff}
+details.task-admin>summary{cursor:pointer;padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.task-admin-body{padding:4px 14px 14px}
 </style>
 </head>
 
@@ -877,7 +896,7 @@ tr:hover td{
 ========================================================= */
 
 const API_URL =
-'https://script.google.com/macros/s/AKfycbx6tWHWzBumOOgSzGbUHsaqCy-OSjoWOae7mtoYJyFfisDKi04obIWqwvtVR88FWujp8w/exec';
+'https://script.google.com/macros/s/AKfycbwYMbNqmvQPVjHxB7fgpbGOnBsiySmfOMyqJiYyVZWfNLNcMtitbJy9KDgcPYqb63Wc7Q/exec';
 
 const SESSION_KEY = 'sppg_session';
 
@@ -1874,6 +1893,9 @@ function renderUnit(){
       <div id="announcementArea"></div>
 
 
+      <div id="taskArea"></div>
+
+
       <div id="statsArea"></div>
 
 
@@ -1917,6 +1939,8 @@ function renderUnit(){
 
 
   loadAnnouncements();
+
+  loadTasks();
 
   loadStats(tabs.map(x => x[0]));
 
@@ -3267,6 +3291,7 @@ async function saveForm(
     ];
 
     await loadTable(type);
+    loadTasks();
 
     toast(
       rowNumber
@@ -3333,6 +3358,7 @@ async function deleteRow(
 
 
     await loadTable(type);
+    loadTasks();
 
 
     toast(
@@ -3696,6 +3722,7 @@ async function executeImport(type, modalId) {
 
     delete dataCache[cacheKey(type)];
     await loadTable(type);
+    loadTasks();
 
     hideLoading();
     toast(result.message || 'Import selesai');
@@ -4036,6 +4063,32 @@ async function renderAdmin(){
       >
 
         <h2 class="section-title">
+          Tugas &amp; Dokumen Wajib
+        </h2>
+
+        <button
+          class="btn btn-success"
+          onclick="openTaskForm()"
+        >
+          + Tambah Tugas / Dokumen
+        </button>
+
+        <div
+          id="adminTaskArea"
+          style="margin-top:15px"
+        >
+          Memuat...
+        </div>
+
+      </div>
+
+
+      <div
+        class="card admin-panel"
+        style="margin-top:20px"
+      >
+
+        <h2 class="section-title">
           Pengumuman
         </h2>
 
@@ -4065,6 +4118,8 @@ async function renderAdmin(){
   loadAdminData(activeTab);
 
   loadAdminAnnouncements();
+
+  loadAdminTasks();
 
 }
 
@@ -5250,6 +5305,538 @@ async function deleteAnnouncement(id){
 /* =========================================================
    LOGOUT
 ========================================================= */
+
+/* =========================================================
+   TUGAS & DOKUMEN WAJIB
+========================================================= */
+
+const TASK_ALLOWED_EXT = ['pdf','jpg','jpeg','png','doc','docx','xls','xlsx'];
+const TASK_MAX_BYTES = 5 * 1024 * 1024;
+
+let myTasksData = [];
+let adminTasksData = [];
+let pendingTaskId = '';
+
+
+function readFileAsBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(',')[1] || '');
+    r.onerror = () => reject(new Error('Gagal membaca file'));
+    r.readAsDataURL(file);
+  });
+}
+
+function validateUploadFile(file){
+  if(!file) return 'File belum dipilih';
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if(!TASK_ALLOWED_EXT.includes(ext)){
+    return 'Format file harus PDF, JPG, PNG, DOC/DOCX, atau XLS/XLSX';
+  }
+  if(file.size > TASK_MAX_BYTES){
+    return 'Ukuran file maksimal 5 MB';
+  }
+  return '';
+}
+
+function saveBase64AsFile(name,mime,b64){
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  const blob = new Blob([bytes],{type:mime || 'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name || 'dokumen';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
+async function downloadRemoteFile(kind,id){
+  showLoading('Mengunduh file...');
+  try{
+    const res = await apiGet({action:'downloadFile',kind,id});
+    hideLoading();
+    saveBase64AsFile(res.name,res.mime,res.base64);
+  }catch(err){
+    hideLoading();
+    toast(err.message);
+  }
+}
+
+function formatBytes(n){
+  n = Number(n) || 0;
+  if(n >= 1048576) return (n/1048576).toFixed(1) + ' MB';
+  return Math.max(1,Math.round(n/1024)) + ' KB';
+}
+
+
+/* ---------- Tampilan USER ---------- */
+
+async function loadTasks(){
+
+  const area = document.getElementById('taskArea');
+  if(!area) return;
+
+  try{
+    const res = await apiGet({action:'myTasks'});
+    myTasksData = res.tasks || [];
+    renderTasks();
+  }catch(err){
+    area.innerHTML = `<div class="notice notice-danger">${esc(err.message)}</div>`;
+  }
+
+}
+
+function renderTasks(){
+
+  const area = document.getElementById('taskArea');
+  if(!area) return;
+
+  const tasks = myTasksData;
+
+  if(!tasks.length){
+    area.innerHTML = '';
+    return;
+  }
+
+  const done = tasks.filter(t => t.done).length;
+  const pct = Math.round(done / tasks.length * 100);
+
+  area.innerHTML = `
+    <div class="card task-card">
+
+      <div class="task-head">
+        <h2 class="section-title" style="margin:0">Tugas yang Harus Diselesaikan</h2>
+        <span class="badge ${done === tasks.length ? 'badge-green' : 'badge-warning'}">
+          ${done} dari ${tasks.length} selesai
+        </span>
+      </div>
+
+      <div class="task-progress"><div style="width:${pct}%"></div></div>
+
+      <input
+        type="file"
+        id="taskFileInput"
+        hidden
+        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+        onchange="onTaskFileChosen(event)"
+      >
+
+      ${tasks.map(t => renderTaskItem(t)).join('')}
+
+    </div>
+  `;
+
+}
+
+function renderTaskItem(t){
+
+  const id = esc(t.id);
+  let body = '';
+
+  if(t.jenis === 'data'){
+
+    body = `
+      <div class="task-actions">
+        <span class="task-note">
+          ${t.count > 0 ? '<strong>' + Number(t.count) + '</strong> data sudah terisi' : 'Belum ada data terisi'}
+        </span>
+        <button class="btn btn-primary btn-sm" onclick="switchTab('${esc(t.tipeData)}')">
+          ${t.count > 0 ? 'Lihat / Tambah Data' : 'Isi Data Sekarang'}
+        </button>
+      </div>
+    `;
+
+  }else{
+
+    body = `
+      <div class="task-actions">
+        ${
+          t.hasTemplate
+          ? `<button class="btn btn-light btn-sm" onclick="downloadRemoteFile('template','${id}')">⬇ Contoh Template</button>`
+          : `<span class="task-note">Contoh template belum tersedia</span>`
+        }
+        <button class="btn btn-primary btn-sm" onclick="pickTaskFile('${id}')">
+          ${t.done ? 'Ganti Dokumen' : 'Upload Dokumen'}
+        </button>
+      </div>
+      ${
+        t.upload
+        ? `<div class="task-file">
+             📎 <a onclick="downloadRemoteFile('upload','${esc(t.upload.id)}')">${esc(t.upload.nama)}</a>
+             <span class="task-note">${formatBytes(t.upload.ukuran)} &middot; ${formatDateTime(t.upload.tanggal)}</span>
+             <button class="btn btn-danger btn-sm" onclick="removeTaskDoc('${id}')">Hapus</button>
+           </div>`
+        : ''
+      }
+    `;
+
+  }
+
+  return `
+    <div class="task-item ${t.done ? 'done' : ''}">
+      <div class="task-check">${t.done ? '✓' : ''}</div>
+      <div class="task-body">
+        <div class="task-title">${esc(t.judul)}</div>
+        ${t.deskripsi ? `<div class="task-desc">${esc(t.deskripsi)}</div>` : ''}
+        ${body}
+      </div>
+    </div>
+  `;
+
+}
+
+function pickTaskFile(taskId){
+  pendingTaskId = taskId;
+  const input = document.getElementById('taskFileInput');
+  if(input){
+    input.value = '';
+    input.click();
+  }
+}
+
+async function onTaskFileChosen(event){
+
+  const file = event.target.files && event.target.files[0];
+  if(!file || !pendingTaskId) return;
+
+  const err = validateUploadFile(file);
+  if(err){
+    toast(err);
+    return;
+  }
+
+  showLoading('Mengunggah dokumen...');
+
+  try{
+    const base64 = await readFileAsBase64(file);
+    const res = await apiPost({
+      action:'uploadDoc',
+      taskId:pendingTaskId,
+      file:{ name:file.name, base64 }
+    });
+    hideLoading();
+    toast(res.message || 'Dokumen berhasil diunggah');
+    pendingTaskId = '';
+    await loadTasks();
+  }catch(e){
+    hideLoading();
+    toast(e.message);
+  }
+
+}
+
+async function removeTaskDoc(taskId){
+
+  if(!confirm('Hapus dokumen yang sudah diunggah?')) return;
+
+  try{
+    await apiPost({action:'deleteDoc',taskId});
+    toast('Dokumen dihapus');
+    await loadTasks();
+  }catch(e){
+    toast(e.message);
+  }
+
+}
+
+
+/* ---------- Tampilan ADMIN ---------- */
+
+function untukLabel(u){
+  return u === 'sekolah' ? 'Sekolah' : (u === 'posyandu' ? 'Posyandu' : 'Semua Instansi');
+}
+
+async function loadAdminTasks(){
+
+  const area = document.getElementById('adminTaskArea');
+  if(!area) return;
+
+  try{
+
+    const res = await apiGet({action:'taskOverview'});
+    adminTasksData = res.tasks || [];
+
+    if(!adminTasksData.length){
+      area.innerHTML = '<div class="empty">Belum ada tugas.</div>';
+      return;
+    }
+
+    area.innerHTML = adminTasksData.map(t => `
+
+      <details class="task-admin">
+
+        <summary>
+          <strong>${esc(t.judul)}</strong>
+          <span class="badge badge-blue">${t.jenis === 'data' ? 'Data: ' + esc(t.tipeData) : 'Dokumen'}</span>
+          <span class="badge badge-gold">${untukLabel(t.untuk)}</span>
+          <span class="badge ${String(t.status).toLowerCase() === 'aktif' ? 'badge-green' : 'badge-red'}">${esc(t.status)}</span>
+          <span class="task-note">${t.selesai} dari ${t.total} instansi selesai</span>
+        </summary>
+
+        <div class="task-admin-body">
+
+          ${t.deskripsi ? `<div class="task-desc">${esc(t.deskripsi)}</div>` : ''}
+
+          <div class="task-actions" style="margin-bottom:12px">
+            ${
+              t.jenis === 'dokumen'
+              ? (
+                  t.hasTemplate
+                  ? `<button class="btn btn-light btn-sm" onclick="downloadRemoteFile('template','${esc(t.id)}')">⬇ Template: ${esc(t.templateNama)}</button>`
+                  : `<span class="task-note">Belum ada file contoh template</span>`
+                )
+              : ''
+            }
+            <button class="btn btn-light btn-sm" onclick="openTaskForm('${esc(t.id)}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTask('${esc(t.id)}')">Hapus</button>
+          </div>
+
+          ${
+            t.rows.length
+            ? `<div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Instansi</th><th>Status</th><th>Keterangan</th></tr>
+                  </thead>
+                  <tbody>
+                    ${t.rows.map(r => `
+                      <tr>
+                        <td>${esc(r.unitName)}${r.tingkat ? ' (' + esc(r.tingkat) + ')' : ''}</td>
+                        <td>
+                          <span class="badge ${r.done ? 'badge-green' : 'badge-warning'}">
+                            ${r.done ? '✓ Selesai' : 'Belum'}
+                          </span>
+                        </td>
+                        <td>
+                          ${
+                            t.jenis === 'data'
+                            ? Number(r.count || 0) + ' data'
+                            : (
+                                r.uploadId
+                                ? `<a style="color:var(--navy2);font-weight:600;text-decoration:underline;cursor:pointer"
+                                      onclick="downloadRemoteFile('upload','${esc(r.uploadId)}')">${esc(r.nama)}</a>
+                                   <div class="task-note">${formatDateTime(r.tanggal)}</div>`
+                                : '-'
+                              )
+                          }
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>`
+            : '<div class="task-note">Belum ada instansi yang menjadi sasaran tugas ini.</div>'
+          }
+
+        </div>
+
+      </details>
+
+    `).join('');
+
+  }catch(err){
+    area.innerHTML = `<div class="notice notice-danger">${esc(err.message)}</div>`;
+  }
+
+}
+
+function toggleTaskFormFields(){
+  const jenis = document.getElementById('task_jenis');
+  const tipe = document.getElementById('task_tipeGroup');
+  const tpl = document.getElementById('task_tplGroup');
+  if(!jenis) return;
+  const isData = jenis.value === 'data';
+  if(tipe) tipe.style.display = isData ? 'block' : 'none';
+  if(tpl) tpl.style.display = isData ? 'none' : 'block';
+}
+
+function openTaskForm(id=''){
+
+  const item = id ? adminTasksData.find(t => t.id === id) : null;
+
+  document.body.insertAdjacentHTML('beforeend', `
+
+    <div class="modal" id="taskModal">
+      <div class="modal-box">
+
+        <div class="modal-head">
+          <h3 class="modal-title">${item ? 'Edit Tugas' : 'Tambah Tugas / Dokumen'}</h3>
+          <button class="close" onclick="document.getElementById('taskModal').remove()">×</button>
+        </div>
+
+        <form onsubmit="saveTask(event,'${item ? esc(item.id) : ''}')">
+
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label class="form-label">Judul</label>
+              <input id="task_judul" class="form-control" maxlength="120" required
+                     value="${esc(item?.judul || '')}"
+                     placeholder="Contoh: Surat Pernyataan Kesediaan Menerima MBG">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Keterangan / Petunjuk</label>
+              <textarea id="task_deskripsi" class="form-control">${esc(item?.deskripsi || '')}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Jenis Tugas</label>
+              <select id="task_jenis" class="form-control" onchange="toggleTaskFormFields()">
+                <option value="dokumen" ${(!item || item.jenis === 'dokumen') ? 'selected' : ''}>Upload Dokumen</option>
+                <option value="data" ${item?.jenis === 'data' ? 'selected' : ''}>Pengisian Data</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="task_tipeGroup" style="display:none">
+              <label class="form-label">Data yang Harus Diisi</label>
+              <select id="task_tipeData" class="form-control">
+                ${[['siswa','Siswa'],['guru','Guru'],['tendik','Tendik'],['penjaga','Penjaga Sekolah'],['posyandu','Posyandu']]
+                  .map(o => `<option value="${o[0]}" ${item?.tipeData === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Berlaku Untuk</label>
+              <select id="task_untuk" class="form-control">
+                ${[['semua','Semua Instansi'],['sekolah','Sekolah saja'],['posyandu','Posyandu saja']]
+                  .map(o => `<option value="${o[0]}" ${(item?.untuk || 'semua') === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}
+              </select>
+            </div>
+
+            <div class="form-group" id="task_tplGroup">
+              <label class="form-label">File Contoh Template (opsional)</label>
+              <input type="file" id="task_file" class="form-control"
+                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
+              <small style="color:#6d7788">PDF / Word / Excel / gambar, maksimal 5 MB.</small>
+              ${
+                item?.hasTemplate
+                ? `<div class="task-note" style="margin-top:6px">
+                     Template saat ini: <strong>${esc(item.templateNama)}</strong>
+                     (memilih file baru akan menggantinya)
+                   </div>
+                   <label style="display:block;margin-top:6px;font-size:13px">
+                     <input type="checkbox" id="task_removeTpl"> Hapus template ini
+                   </label>`
+                : ''
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select id="task_status" class="form-control">
+                <option value="Aktif" ${(!item || item.status === 'Aktif') ? 'selected' : ''}>Aktif (tampil di user)</option>
+                <option value="Nonaktif" ${item?.status === 'Nonaktif' ? 'selected' : ''}>Nonaktif (disembunyikan)</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="modal-foot">
+            <button type="button" class="btn btn-light"
+                    onclick="document.getElementById('taskModal').remove()">Batal</button>
+            <button type="submit" class="btn btn-primary">Simpan</button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+  `);
+
+  toggleTaskFormFields();
+
+}
+
+async function saveTask(event,id){
+
+  event.preventDefault();
+
+  const jenis = document.getElementById('task_jenis').value;
+
+  const data = {
+    judul: document.getElementById('task_judul').value.trim(),
+    deskripsi: document.getElementById('task_deskripsi').value.trim(),
+    jenis,
+    tipeData: jenis === 'data' ? document.getElementById('task_tipeData').value : '',
+    untuk: document.getElementById('task_untuk').value,
+    status: document.getElementById('task_status').value
+  };
+
+  if(!data.judul){
+    toast('Judul wajib diisi');
+    return;
+  }
+
+  let file = null;
+  const fileEl = document.getElementById('task_file');
+
+  if(jenis === 'dokumen' && fileEl && fileEl.files && fileEl.files[0]){
+
+    const f = fileEl.files[0];
+    const err = validateUploadFile(f);
+
+    if(err){
+      toast(err);
+      return;
+    }
+
+    file = { name:f.name, base64:await readFileAsBase64(f) };
+
+  }
+
+  const removeEl = document.getElementById('task_removeTpl');
+
+  showLoading('Menyimpan tugas...');
+
+  try{
+
+    if(id){
+      await apiPost({
+        action:'updateTask',
+        id,
+        data,
+        file,
+        removeTemplate: !!(removeEl && removeEl.checked)
+      });
+    }else{
+      await apiPost({action:'addTask',data,file});
+    }
+
+    hideLoading();
+    const modal = document.getElementById('taskModal');
+    if(modal) modal.remove();
+    toast(id ? 'Tugas diperbarui' : 'Tugas ditambahkan');
+    loadAdminTasks();
+
+  }catch(err){
+    hideLoading();
+    toast(err.message);
+  }
+
+}
+
+async function deleteTask(id){
+
+  if(!confirm('Hapus tugas ini? Dokumen yang sudah diunggah instansi tetap tersimpan di Google Drive. Gunakan status Nonaktif jika hanya ingin menyembunyikan.')){
+    return;
+  }
+
+  try{
+    await apiPost({action:'deleteTask',id});
+    toast('Tugas dihapus');
+    loadAdminTasks();
+  }catch(err){
+    toast(err.message);
+  }
+
+}
+
 
 async function logout(){
 
