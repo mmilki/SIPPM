@@ -882,6 +882,26 @@ tr:hover td{
 details.task-admin{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;background:#fff}
 details.task-admin>summary{cursor:pointer;padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .task-admin-body{padding:4px 14px 14px}
+
+/* ===== TARGET JUMLAH DATA ===== */
+.stat-target{margin-top:8px;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tbadge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800}
+.tbadge-ok{background:#e8f7dc;color:#34741a}
+.tbadge-low{background:#fff3cd;color:#8a6d3b}
+.tbadge-high{background:#fde7e6;color:#9c2e2a}
+.tbadge-none{background:#edf1f6;color:#6d7788}
+.stat.t-low{border-color:#f0ad4e}
+.stat.t-high{border-color:var(--danger)}
+.stat.t-ok{border-color:var(--green2)}
+.target-banner .notice{margin-bottom:8px;font-weight:600}
+.target-unit{border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.target-unit h4{margin:0 0 10px;color:var(--navy);font-size:14px}
+.target-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.target-grid label{font-size:12px;font-weight:700;display:block;margin-bottom:4px}
+.rekap-wrap{overflow-x:auto}
+.rekap-table{width:100%;border-collapse:collapse;font-size:13px}
+.rekap-table th,.rekap-table td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left;white-space:nowrap}
+.rekap-table th{background:#f4f7fb;color:var(--navy)}
 </style>
 </head>
 
@@ -1778,6 +1798,7 @@ function header(){
               <div class="user-dropdown" id="userDropdownMenu">
                 <button class="user-dropdown-item" onclick="openUserForm()">+ Tambah User</button>
                 <button class="user-dropdown-item" onclick="openManageUsersModal()">Kelola User</button>
+                <button class="user-dropdown-item" onclick="openTargetModal()">Atur Target Data</button>
                 <button class="user-dropdown-item" onclick="logout()">Keluar</button>
               </div>
             `
@@ -2142,6 +2163,89 @@ function clearDataCache(){
    STATS
 ========================================================= */
 
+function userStatTypes(){
+
+  const isSchool =
+    String(session?.unitType || '')
+      .toLowerCase()
+      .includes('sekolah');
+
+  return isSchool
+    ? schoolTabsForTingkat(session.tingkat).map(x => x[0])
+    : ['posyandu'];
+
+}
+
+
+function renderStatsArea(types){
+
+  const area =
+    document.getElementById(
+      'statsArea'
+    );
+
+  if(!area) return;
+
+  const unit = session?.unitName || '';
+
+  const banners = [];
+
+  const cards = types.map(type => {
+
+    const count =
+      getCachedRows(type).length;
+
+    const target =
+      getTarget(unit,type);
+
+    const st =
+      targetStatus(count,target);
+
+    if(st.msg){
+
+      banners.push(
+        `<div class="notice ${st.noticeClass}">${st.icon} <strong>${esc(labelType(type))}</strong>: ${esc(st.msg)}</div>`
+      );
+
+    }
+
+    return `
+
+      <div class="card stat ${st.cardClass}">
+
+        <div class="stat-label">
+          ${labelType(type)}
+        </div>
+
+        <div class="stat-value">
+          ${count}${target !== null ? ' <span style="font-size:15px;color:var(--muted);font-weight:700">/ ' + target + '</span>' : ''}
+        </div>
+
+        ${
+          target !== null
+          ? `<div class="stat-target">Target: ${target} <span class="tbadge ${st.badgeClass}">${st.badge}</span></div>`
+          : ''
+        }
+
+      </div>
+
+    `;
+
+  }).join('');
+
+  area.innerHTML = `
+
+    ${banners.length ? `<div class="target-banner">${banners.join('')}</div>` : ''}
+
+    <div class="stats">
+      ${cards}
+    </div>
+
+  `;
+
+}
+
+
 async function loadStats(types){
 
   const area =
@@ -2151,51 +2255,25 @@ async function loadStats(types){
 
   if(!area) return;
 
-
-  const cached =
-    types.map(
-      t => getCachedRows(t).length
-    );
-
-
-  area.innerHTML = `
-
-    <div class="stats">
-
-      ${types.map((type,i) => `
-
-        <div class="card stat">
-
-          <div class="stat-label">
-            ${labelType(type)}
-          </div>
-
-          <div class="stat-value">
-            ${cached[i]}
-          </div>
-
-        </div>
-
-      `).join('')}
-
-    </div>
-
-  `;
-
+  renderStatsArea(types);
 
   try{
 
-    const results =
-      await Promise.all(
-        types.map(
-          type =>
-            apiGet({
-              action:'list',
-              type
-            })
+    const [results] =
+      await Promise.all([
+        Promise.all(
+          types.map(
+            type =>
+              apiGet({
+                action:'list',
+                type
+              })
+          )
+        ),
+        loadTargets().catch(
+          e => console.log('Target:',e.message)
         )
-      );
-
+      ]);
 
     results.forEach(
       (result,i) => {
@@ -2208,31 +2286,7 @@ async function loadStats(types){
       }
     );
 
-
-    area.innerHTML = `
-
-      <div class="stats">
-
-        ${types.map(type => `
-
-          <div class="card stat">
-
-            <div class="stat-label">
-              ${labelType(type)}
-            </div>
-
-            <div class="stat-value">
-              ${getCachedRows(type).length}
-            </div>
-
-          </div>
-
-        `).join('')}
-
-      </div>
-
-    `;
-
+    renderStatsArea(types);
 
     if(activeTab === 'posyandu'){
       const areaCat =
@@ -2244,7 +2298,6 @@ async function loadStats(types){
       }
     }
 
-
     if(activeTab === 'siswa'){
       const areaCat =
         document.querySelector('.category-grid');
@@ -2254,7 +2307,6 @@ async function loadStats(types){
           renderKelasCategories();
       }
     }
-
 
   }catch(err){
 
@@ -2327,6 +2379,10 @@ async function loadTable(type){
       result.rows || [],
       false
     );
+
+    if(session && session.role !== 'admin'){
+      renderStatsArea(userStatTypes());
+    }
 
   }catch(err){
 
@@ -3253,6 +3309,28 @@ async function saveForm(
   }
 
 
+  if(!rowNumber){
+
+    const tgt = getTarget(session.unitName,type);
+
+    if(
+      tgt !== null &&
+      getCachedRows(type).length >= tgt
+    ){
+
+      if(!confirm(
+        '⚠️ PERINGATAN\n\nJumlah data ' +
+        labelType(type) + ' sudah mencapai target (' + tgt +
+        ').\nMenambah data ini akan MELEBIHI target yang ditetapkan admin.\n\nTetap lanjutkan?'
+      )){
+        return;
+      }
+
+    }
+
+  }
+
+
   try{
 
     if(rowNumber){
@@ -3710,6 +3788,19 @@ async function executeImport(type, modalId) {
   const valid = window.tempImportData || [];
   if (!valid.length) return;
 
+  const tgtImp = getTarget(session.unitName, type);
+  if (tgtImp !== null) {
+    const after = getCachedRows(type).length + valid.length;
+    if (after > tgtImp) {
+      if (!confirm(
+        '⚠️ PERINGATAN\n\nSetelah impor, jumlah data ' + labelType(type) +
+        ' menjadi ' + after + ', melebihi target ' + tgtImp + ' (lebih ' + (after - tgtImp) + ').\n\nTetap lanjutkan impor?'
+      )) {
+        return;
+      }
+    }
+  }
+
   document.getElementById(modalId).remove();
   showLoading('Mengunggah ' + valid.length + ' data ke server...');
 
@@ -3907,7 +3998,9 @@ async function loadAnnouncements(){
 
 
     announcementCache =
-      result.rows || [];
+      (result.rows || []).filter(
+        a => (a.Judul || a.judul) !== TARGET_TITLE
+      );
 
 
     if(!announcementCache.length){
@@ -4006,6 +4099,22 @@ async function renderAdmin(){
 
 
       <div id="adminStats"></div>
+
+
+      <div class="card admin-panel" style="margin-bottom:20px">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <h2 class="section-title" style="margin:0">
+            Target &amp; Pemantauan Jumlah Data
+          </h2>
+          <button class="btn btn-success btn-sm" onclick="openTargetModal()">
+            🎯 Atur Target Data
+          </button>
+        </div>
+
+        <div id="adminTargetArea">Memuat...</div>
+
+      </div>
 
 
       <div class="admin-grid">
@@ -4229,6 +4338,8 @@ async function loadAdminStats(){
       </div>
 
     `;
+
+    renderAdminTargetRecap();
 
   }catch(err){
 
@@ -4975,7 +5086,9 @@ async function loadAdminAnnouncements(){
 
 
     const rows =
-      result.rows || [];
+      (result.rows || []).filter(
+        a => a.Judul !== TARGET_TITLE
+      );
 
 
     area.innerHTML =
@@ -5833,6 +5946,338 @@ async function deleteTask(id){
     loadAdminTasks();
   }catch(err){
     toast(err.message);
+  }
+
+}
+
+
+
+/* =========================================================
+   TARGET JUMLAH DATA (diatur admin, dipenuhi user)
+   Disimpan sebagai pengumuman tersembunyi "__TARGET_CONFIG__"
+   (JSON per instansi) sehingga tidak perlu ubah backend.
+========================================================= */
+
+const TARGET_TITLE = '__TARGET_CONFIG__';
+
+let targetConfig = {};
+let targetAnnId = '';
+
+
+async function loadTargets(){
+
+  const params =
+    { action:'listAnnouncements' };
+
+  if(session?.role !== 'admin'){
+    params.activeOnly = 'true';
+  }
+
+  const result = await apiGet(params);
+
+  const row =
+    (result.rows || []).find(
+      a => (a.Judul || a.judul) === TARGET_TITLE
+    );
+
+  targetAnnId =
+    row ? String(row.ID || row.id || '') : '';
+
+  try{
+    targetConfig =
+      row
+      ? JSON.parse(row.Isi || row.isi || '{}')
+      : {};
+  }catch(e){
+    targetConfig = {};
+  }
+
+}
+
+
+function getTarget(unit,type){
+
+  const v = targetConfig?.[String(unit || '').trim()]?.[type];
+
+  if(v === undefined || v === null || v === '') return null;
+
+  const n = parseInt(v,10);
+
+  return isNaN(n) ? null : n;
+
+}
+
+
+function targetStatus(count,target){
+
+  if(target === null){
+    return {
+      cardClass:'', badgeClass:'tbadge-none',
+      badge:'Belum ada target', msg:'', noticeClass:'', icon:''
+    };
+  }
+
+  if(count === target){
+    return {
+      cardClass:'t-ok', badgeClass:'tbadge-ok',
+      badge:'✔ Sesuai',
+      msg:'', noticeClass:'', icon:''
+    };
+  }
+
+  if(count < target){
+    const d = target - count;
+    return {
+      cardClass:'t-low', badgeClass:'tbadge-low',
+      badge:'Kurang ' + d,
+      msg:'jumlah data KURANG ' + d + ' (terisi ' + count + ' dari target ' + target + '). Mohon lengkapi data.',
+      noticeClass:'notice-warning', icon:'⚠️'
+    };
+  }
+
+  const d = count - target;
+  return {
+    cardClass:'t-high', badgeClass:'tbadge-high',
+    badge:'Berlebih ' + d,
+    msg:'jumlah data BERLEBIH ' + d + ' (terisi ' + count + ' dari target ' + target + '). Mohon periksa data ganda / yang tidak seharusnya.',
+    noticeClass:'notice-danger', icon:'🚫'
+  };
+
+}
+
+
+function typesForUnitUser(u){
+
+  const isSchool =
+    String(u.unitType || '')
+      .toLowerCase()
+      .includes('sekolah');
+
+  if(!isSchool) return ['posyandu'];
+
+  return schoolTabsForTingkat(u.tingkat).map(x => x[0]);
+
+}
+
+
+async function renderAdminTargetRecap(){
+
+  const area =
+    document.getElementById('adminTargetArea');
+
+  if(!area) return;
+
+  try{
+
+    await loadTargets();
+
+    const ures = await apiGet({ action:'users' });
+
+    const users =
+      (ures.users || []).filter(u => u.role !== 'admin');
+
+    if(!users.length){
+      area.innerHTML = '<div class="empty">Belum ada instansi.</div>';
+      return;
+    }
+
+    const types = ['siswa','guru','tendik','penjaga','posyandu'];
+
+    const rows = users.map(u => {
+
+      const unit = String(u.unitName || '').trim();
+
+      const applicable = typesForUnitUser(u);
+
+      const cells = types.map(type => {
+
+        if(!applicable.includes(type)){
+          return '<td style="color:#b0b8c5">-</td>';
+        }
+
+        const count =
+          getCachedRows(type).filter(
+            r => String(r.Unit || '').trim() === unit
+          ).length;
+
+        const target = getTarget(unit,type);
+
+        const st = targetStatus(count,target);
+
+        return `<td>${count}${target !== null ? ' / ' + target : ''} <span class="tbadge ${st.badgeClass}">${st.badge}</span></td>`;
+
+      }).join('');
+
+      return `<tr><td><strong>${esc(unit)}</strong></td>${cells}</tr>`;
+
+    }).join('');
+
+    area.innerHTML = `
+      <div class="rekap-wrap">
+        <table class="rekap-table">
+          <thead>
+            <tr>
+              <th>Instansi</th>
+              ${types.map(t => `<th>${labelType(t)}<br><span style="font-weight:400;font-size:11px">terisi / target</span></th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+
+  }catch(err){
+
+    area.innerHTML =
+      `<div class="notice notice-danger">${esc(err.message)}</div>`;
+
+  }
+
+}
+
+
+async function openTargetModal(){
+
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    `
+      <div class="modal" id="targetModal">
+        <div class="modal-box" style="max-width:720px;">
+          <div class="modal-head">
+            <h3 class="modal-title">Atur Target Jumlah Data</h3>
+            <button class="close" onclick="document.getElementById('targetModal').remove()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="notice notice-warning">
+              Isi jumlah data yang <strong>harus dipenuhi</strong> tiap instansi. Kosongkan jika tidak ada target.
+              User akan diberi peringatan bila jumlah data kurang atau berlebih.
+            </div>
+            <div id="targetFormArea">Memuat...</div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn btn-light" onclick="document.getElementById('targetModal').remove()">Batal</button>
+            <button class="btn btn-primary" onclick="saveTargets()">Simpan Target</button>
+          </div>
+        </div>
+      </div>
+    `
+  );
+
+  const area =
+    document.getElementById('targetFormArea');
+
+  try{
+
+    await loadTargets();
+
+    const ures = await apiGet({ action:'users' });
+
+    const users =
+      (ures.users || []).filter(u => u.role !== 'admin');
+
+    if(!users.length){
+      area.innerHTML = '<div class="empty">Belum ada instansi. Tambahkan user terlebih dahulu.</div>';
+      return;
+    }
+
+    area.innerHTML = users.map((u,i) => {
+
+      const unit = String(u.unitName || '').trim();
+
+      return `
+        <div class="target-unit" data-unit="${esc(unit)}">
+          <h4>${esc(unit)} ${u.tingkat ? '(' + esc(u.tingkat) + ')' : ''}</h4>
+          <div class="target-grid">
+            ${typesForUnitUser(u).map(type => {
+              const v = getTarget(unit,type);
+              return `
+                <div>
+                  <label>${labelType(type)}</label>
+                  <input
+                    type="number"
+                    min="0"
+                    class="form-control target-input"
+                    data-type="${type}"
+                    value="${v === null ? '' : v}"
+                    placeholder="mis. 30"
+                  >
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+    }).join('');
+
+  }catch(err){
+
+    area.innerHTML =
+      `<div class="notice notice-danger">${esc(err.message)}</div>`;
+
+  }
+
+}
+
+
+async function saveTargets(){
+
+  const cfg = { ...targetConfig };
+
+  document.querySelectorAll('#targetFormArea .target-unit').forEach(box => {
+
+    const unit = box.getAttribute('data-unit');
+
+    const obj = {};
+
+    box.querySelectorAll('.target-input').forEach(inp => {
+
+      const v = inp.value.trim();
+
+      if(v !== '' && !isNaN(parseInt(v,10)) && parseInt(v,10) >= 0){
+        obj[inp.getAttribute('data-type')] = parseInt(v,10);
+      }
+
+    });
+
+    cfg[unit] = obj;
+
+  });
+
+  const data = {
+    judul: TARGET_TITLE,
+    isi: JSON.stringify(cfg),
+    status: 'Aktif'
+  };
+
+  try{
+
+    showLoading('Menyimpan target...');
+
+    if(targetAnnId){
+      await apiPost({ action:'updateAnnouncement', id:targetAnnId, data });
+    }else{
+      await apiPost({ action:'addAnnouncement', data });
+    }
+
+    await loadTargets();
+
+    hideLoading();
+
+    document.getElementById('targetModal')?.remove();
+
+    renderAdminTargetRecap();
+
+    loadAdminAnnouncements();
+
+    toast('Target berhasil disimpan');
+
+  }catch(err){
+
+    hideLoading();
+
+    toast(err.message);
+
   }
 
 }
