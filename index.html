@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <title>SPPG Ogan Ilir Sungai Pinang Sungai Pinang III</title>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
 :root{
@@ -902,6 +902,60 @@ details.task-admin>summary{cursor:pointer;padding:12px 14px;display:flex;gap:8px
 .rekap-table{width:100%;border-collapse:collapse;font-size:13px}
 .rekap-table th,.rekap-table td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left;white-space:nowrap}
 .rekap-table th{background:#f4f7fb;color:var(--navy)}
+
+/* ===== UPGRADE: ringan & interaktif ===== */
+#topbar{position:fixed;top:0;left:0;height:3px;width:100%;z-index:10000;background:linear-gradient(90deg,transparent,var(--green),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:slide 1s linear infinite;opacity:0;transition:opacity .2s;pointer-events:none}
+#topbar.on{opacity:1}
+@keyframes slide{from{background-position:-40% 0}to{background-position:140% 0}}
+#toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:10001;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:92vw}
+.snack{background:var(--navy);color:#fff;padding:11px 18px;border-radius:30px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(7,30,73,.3);animation:pop .25s ease both}
+.snack.ok{background:#2f7d1f}.snack.err{background:var(--danger)}
+.snack.out{opacity:0;transform:translateY(8px);transition:.25s}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.95)}}
+.container>*,.modal-box{animation:fadeup .3s ease both}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}}
+tbody tr{transition:background .15s}tbody tr:hover{background:#f3faed}
+tbody tr.new{animation:flash 1.6s ease}
+@keyframes flash{from{background:#d8f2bd}}
+.table-wrap{max-height:68vh}.table-wrap thead th{position:sticky;top:0;z-index:2}
+.btn:active{transform:scale(.96)}.category{transition:.18s}.category:hover{transform:translateY(-2px);border-color:var(--green2)}
+.syncing .actions{pointer-events:none;opacity:.45}
+.skel{padding:18px}.skel i{display:block;height:34px;border-radius:10px;margin-bottom:10px;background:linear-gradient(90deg,#eef2f7 25%,#f8fafd 50%,#eef2f7 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.pbar{height:7px;background:#e9eef5;border-radius:9px;margin-top:10px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green2),var(--green));border-radius:9px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.pbar.over i{background:var(--danger)}
+.pmsg{font-size:11px;color:var(--muted);margin-top:6px;font-weight:700}
+.more{text-align:center;padding:14px;border-top:1px solid var(--border)}
+.cf{position:fixed;top:-12px;z-index:10002;font-size:20px;pointer-events:none;animation:fall 2.4s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.7}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ===== LOGIN KACA (glass) ===== */
+.gl{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;font-family:"Poppins",Inter,Arial,sans-serif;
+ background:linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.45)),url('https://nasemul1.github.io/img_host/peakpx.jpg') center/cover no-repeat,linear-gradient(135deg,#071e49,#0c2d67 55%,#2f7d1f);overflow:hidden}
+.gl *{font-family:inherit}
+.gl-card{position:relative;width:100%;max-width:375px;background:rgba(0,0,0,0);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:14px;border:1px solid rgba(255,255,255,.22);border-top-color:rgba(255,255,255,.4);border-left-color:rgba(255,255,255,.3);box-shadow:0 25px 50px rgba(0,0,0,.75),inset 0 1px 2px rgba(255,255,255,.25);padding:42px 34px 36px;color:#fff;overflow:hidden}
+.gl-card h2{font-size:1.85rem;font-weight:700;text-align:center;margin:0 0 6px;letter-spacing:.4px;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.gl-sub{text-align:center;font-size:.78rem;color:rgba(255,255,255,.8);margin-bottom:34px;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.gl-field{position:relative;margin-bottom:28px}
+.gl-field input{width:100%;background:transparent;border:none;border-bottom:1.2px solid rgba(255,255,255,.4);padding:10px 30px 8px 0;font-size:.95rem;color:#fff;outline:none;transition:border-color .25s;text-shadow:0 1px 3px rgba(0,0,0,.8);border-radius:0}
+.gl-field label{position:absolute;left:0;top:10px;color:rgba(255,255,255,.75);font-size:.92rem;pointer-events:none;transition:all .22s cubic-bezier(.4,0,.2,1);text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.gl-field input:focus~label,.gl-field input:valid~label{top:-14px;font-size:.72rem;font-weight:600;letter-spacing:.5px;color:#fff;text-shadow:0 0 8px rgba(255,255,255,.8)}
+.gl-field input:focus{border-bottom-color:#fff}
+.gl-eye{position:absolute;right:0;top:8px;background:none;border:0;color:rgba(255,255,255,.8);cursor:pointer;padding:2px;display:flex}
+.gl-eye:hover{color:#fff}
+.gl-row{display:flex;justify-content:space-between;align-items:center;margin:-6px 0 26px;font-size:.82rem;color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.gl-rem{display:flex;align-items:center;gap:7px;cursor:pointer}
+.gl-rem input{appearance:none;-webkit-appearance:none;width:15px;height:15px;border:1.2px solid rgba(255,255,255,.7);border-radius:3px;cursor:pointer;position:relative;margin:0}
+.gl-rem input:checked{background:#fff}
+.gl-rem input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #000;border-width:0 1.8px 1.8px 0;transform:rotate(45deg)}
+.gl a{color:rgba(255,255,255,.9);text-decoration:none}.gl a:hover{color:#fff;text-decoration:underline}
+.gl-btn{width:100%;height:46px;background:#fff;border:none;border-radius:6px;font-size:.95rem;font-weight:600;color:#111;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.55);transition:all .2s}
+.gl-btn:hover{background:rgba(255,255,255,.92);transform:translateY(-1.5px);box-shadow:0 12px 28px rgba(0,0,0,.7)}
+.gl-btn:active{transform:translateY(1px)}.gl-btn:disabled{opacity:.7;cursor:wait;transform:none}
+.gl-note{text-align:center;margin-top:22px;font-size:.82rem;color:rgba(255,255,255,.85);text-shadow:0 1px 3px rgba(0,0,0,.8)}
+#loginNotice .notice{background:rgba(0,0,0,.35);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;text-align:center;font-size:.8rem;margin:-14px 0 20px;padding:9px}
+#loginNotice .notice-danger{background:rgba(217,83,79,.55)}
 </style>
 </head>
 
@@ -1613,114 +1667,46 @@ function render(){
 ========================================================= */
 
 function renderLogin(){
-
+  const saved = localStorage.getItem('sppg_user') || '';
   document.getElementById('app').innerHTML = `
-
-    <div class="login-wrap">
-
-      <div class="card login-card">
-
-        <div class="login-logo">
-          SPPG
-        </div>
-
-        <h1 class="login-title">
-          SPPG Ogan Ilir
-        </h1>
-
-        <div class="login-sub">
-          Sungai Pinang Sungai Pinang III
-        </div>
-
+    <div class="gl">
+      <div class="gl-card">
+        <h2>Login</h2>
+        <div class="gl-sub">SPPG Ogan Ilir &middot; Sungai Pinang III</div>
         <div id="loginNotice"></div>
-
         <form onsubmit="doLogin(event)">
-
-          <div class="form-group">
-
-            <label class="form-label">
-              Username
-            </label>
-
-            <input
-              id="loginUsername"
-              class="form-control"
-              autocomplete="username"
-              required
-            >
-
+          <div class="gl-field">
+            <input id="loginUsername" value="${esc(saved)}" autocomplete="username" required>
+            <label for="loginUsername">Username</label>
           </div>
-
-
-          <div class="form-group">
-
-            <label class="form-label">
-              Password
-            </label>
-
-            <input
-              id="loginPassword"
-              type="password"
-              class="form-control"
-              autocomplete="current-password"
-              required
-            >
-
+          <div class="gl-field">
+            <input id="loginPassword" type="password" autocomplete="current-password" required>
+            <label for="loginPassword">Password</label>
+            <button type="button" class="gl-eye" aria-label="Tampilkan password" onclick="const i=document.getElementById('loginPassword');i.type=i.type==='password'?'text':'password';this.style.opacity=i.type==='text'?1:.6">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
           </div>
-
-
-          <button
-            class="btn btn-primary full"
-            type="submit"
-          >
-            Masuk
-          </button>
-
+          <div class="gl-row">
+            <label class="gl-rem"><input type="checkbox" id="loginRemember" ${saved ? 'checked' : ''}><span>Ingat username</span></label>
+            <a href="#" onclick="event.preventDefault();toast('Hubungi admin SPPG untuk reset password')">Lupa password</a>
+          </div>
+          <button class="gl-btn" id="loginBtn" type="submit">Masuk</button>
+          <div class="gl-note">Belum punya akun? Hubungi admin SPPG.</div>
         </form>
-
       </div>
-
     </div>
-
   `;
-
 }
-
-
 async function doLogin(event){
-
   event.preventDefault();
-
-  const username =
-    document.getElementById(
-      'loginUsername'
-    ).value.trim();
-
-  const password =
-    document.getElementById(
-      'loginPassword'
-    ).value;
-
-
-  const notice =
-    document.getElementById(
-      'loginNotice'
-    );
-
-  notice.innerHTML =
-    '<div class="notice">Memproses login...</div>';
-
-
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const notice = document.getElementById('loginNotice');
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Memproses…';
+  notice.innerHTML = '';
   try{
-
-    const result =
-      await apiPost({
-        action:'login',
-        username,
-        password
-      });
-
-
+    const result = await apiPost({ action:'login', username, password });
     session = {
       token:result.token,
       role:result.user.role,
@@ -1729,23 +1715,15 @@ async function doLogin(event){
       tingkat:result.user.tingkat,
       username:result.user.username
     };
-
-
+    if(document.getElementById('loginRemember').checked) localStorage.setItem('sppg_user', username);
+    else localStorage.removeItem('sppg_user');
     saveSession();
-
     render();
-
   }catch(err){
-
-    notice.innerHTML =
-      `<div class="notice notice-danger">
-        ${esc(err.message)}
-      </div>`;
-
+    btn.disabled = false; btn.textContent = 'Masuk';
+    notice.innerHTML = `<div class="notice notice-danger">${esc(err.message)}</div>`;
   }
-
 }
-
 
 /* =========================================================
    HEADER
@@ -6311,9 +6289,119 @@ async function logout(){
    AUTO RENDER
 ========================================================= */
 
-render();
-
 </script>
 
+<script>
+/* ===== UPGRADE: ringan & interaktif ===== */
+(function(){
+const $=s=>document.querySelector(s);
+document.body.insertAdjacentHTML('beforeend','<div id="topbar"></div><div id="toasts"></div>');
+
+/* 1. Library Excel dimuat hanya saat dibutuhkan (hemat ±900KB di awal) */
+let xp;const ensureX=()=>window.XLSX?Promise.resolve():(xp=xp||new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=ok;s.onerror=()=>{xp=null;no(new Error('Gagal memuat modul Excel'))};document.head.appendChild(s)}));
+['downloadTemplate','importExcel','exportExcel'].forEach(n=>{const o=window[n];window[n]=function(...a){toast('Menyiapkan Excel…');return ensureX().then(()=>o.apply(this,a)).catch(e=>toast(e.message))}});
+
+/* 2. Cache request + indikator loading tipis (tidak memblokir layar) */
+let pend=0,cache=new Map();const bar=n=>{pend+=n;$('#topbar').classList.toggle('on',pend>0)};
+const oGet=apiGet,oPost=apiPost,TTL=30000;
+apiGet=function(p={}){const k=JSON.stringify(p)+(session?.token||'');const c=cache.get(k);
+ if(c&&Date.now()-c.t<TTL)return c.p;bar(1);
+ const pr=oGet(p).finally(()=>bar(-1));cache.set(k,{t:Date.now(),p:pr});pr.catch(()=>cache.delete(k));return pr};
+apiPost=function(p){bar(1);return oPost(p).then(r=>{cache.clear();return r}).finally(()=>bar(-1))};
+
+/* 3. Toast pengganti alert() */
+toast=window.alert=function(m){const e=document.createElement('div'),s=String(m);
+ e.className='snack '+(/berhasil|tersimpan|tercapai|dihapus|✓/i.test(s)?'ok':/gagal|salah|error|wajib|harus|invalid|tidak|belum|maks/i.test(s)?'err':'');
+ e.textContent=s;$('#toasts').appendChild(e);setTimeout(()=>{e.classList.add('out');setTimeout(()=>e.remove(),300)},s.length>60?4500:2600)};
+
+/* 4. Dialog konfirmasi yang rapi */
+const ask=(t,msg,ok,danger)=>new Promise(res=>{const m=document.createElement('div');m.className='modal';
+ m.innerHTML=`<div class="modal-box" style="max-width:380px"><div class="modal-body" style="text-align:center;padding:26px 22px 8px"><div style="font-size:38px">${danger?'🗑️':'⚠️'}</div><h3 style="margin:8px 0;color:var(--navy)">${t}</h3><div style="color:var(--muted);font-size:13px;line-height:1.6">${msg}</div></div><div class="modal-foot"><button class="btn btn-light" id="cn">Batal</button><button class="btn ${danger?'btn-danger':'btn-primary'}" id="cy">${ok}</button></div></div>`;
+ document.body.appendChild(m);const d=v=>{m.remove();res(v)};m.querySelector('#cn').onclick=()=>d(false);m.querySelector('#cy').onclick=()=>d(true);m.querySelector('#cy').focus()});
+
+/* 5. Tabel: loading skeleton, "tampilkan lagi", fokus pencarian tidak hilang */
+const PAGE=25;let shown=PAGE,pk='';
+const oRT=renderTable;
+renderTable=function(area,type,rows,cached){
+ if(cached&&!(rows||[]).length){area.innerHTML='<div class="card skel"><i></i><i></i><i></i><i></i><i></i></div>';return}
+ const k=type+posyanduCategory+kelasCategory;if(k!==pk){pk=k;shown=PAGE}
+ const f=area.querySelector('input[type=text]'),hadFocus=f&&document.activeElement===f,pos=f?.selectionStart;
+ oRT(area,type,rows,cached);
+ const trs=[...area.querySelectorAll('tbody tr')];
+ if(trs.length>shown){trs.slice(shown).forEach(r=>r.hidden=true);
+  const d=document.createElement('div');d.className='more';
+  d.innerHTML=`<button class="btn btn-light">Tampilkan ${Math.min(PAGE,trs.length-shown)} lagi <small>(${trs.length-shown} tersisa)</small></button>`;
+  d.firstChild.onclick=()=>{shown+=PAGE;renderTable(area,type,rows,false)};area.querySelector('.table-card').appendChild(d)}
+ const nr=window._newRow&&trs.find(r=>r.textContent.includes(window._newRow));if(nr){nr.classList.add('new');window._newRow=null}
+ const i=area.querySelector('input[type=text]');if(i){i.placeholder='Cari Nama / NIK…  (tekan /)';if(hadFocus){i.focus();i.setSelectionRange(pos,pos)}}
+};
+let tm;onSearchInput=function(e){searchQuery=e.target.value;shown=PAGE;clearTimeout(tm);tm=setTimeout(()=>{const a=$('#tableArea');a&&renderTable(a,activeTab,getCachedRows(activeTab),false)},180)};
+const oLT=loadTable;loadTable=async function(t){const a=$('#tableArea');a&&a.classList.add('syncing');try{await oLT(t)}finally{a&&a.classList.remove('syncing')}};
+
+/* 6. Kartu statistik: progres bar, pesan semangat, hitung naik */
+const oRS=renderStatsArea;
+renderStatsArea=function(types){oRS(types);const u=session?.unitName||'';
+ document.querySelectorAll('#statsArea .stat').forEach((c,i)=>{const t=types[i],n=getCachedRows(t).length,g=getTarget(u,t);
+  const v=c.querySelector('.stat-value'),tn=v.firstChild;
+  if(tn&&n>0&&!c.dataset.a){c.dataset.a=1;const s=performance.now();(function f(x){const p=Math.min(1,(x-s)/700);tn.textContent=Math.round(n*(1-Math.pow(1-p,3)))+' ';p<1&&requestAnimationFrame(f)})(s)}
+  if(g===null||c.querySelector('.pbar'))return;const pc=g?Math.min(100,n/g*100):100;
+  const m=n===g?'🎉 Target tercapai, mantap!':n>g?'Kelebihan '+(n-g)+' — mohon cek data ganda':n===0?'Yuk mulai input data pertama 🚀':'Tinggal '+(g-n)+' lagi'+(pc>=75?' — hampir selesai! 💪':'');
+  c.insertAdjacentHTML('beforeend',`<div class="pbar ${n>g?'over':''}"><i></i></div><div class="pmsg">${m}</div>`);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>c.querySelector('.pbar i').style.width=pc+'%'))})};
+
+const confetti=()=>{for(let i=0;i<46;i++){const e=document.createElement('span');e.className='cf';e.textContent=['🎉','✨','🟢','🟡','🔵'][i%5];
+ e.style.left=Math.random()*100+'vw';e.style.animationDelay=Math.random()*.6+'s';e.style.fontSize=14+Math.random()*14+'px';document.body.appendChild(e);setTimeout(()=>e.remove(),3300)}};
+
+/* 7. Form: tombol "Simpan & Tambah Lagi", simpan cepat dengan update langsung */
+const oOF=openForm;let again=false;
+openForm=function(type,row){oOF(type,row);const f=$('#dataModal form');if(!f||row)return;
+ const b=document.createElement('button');b.type='button';b.className='btn btn-success';b.textContent='Simpan & Tambah Lagi';
+ b.onclick=()=>{again=true;f.requestSubmit()};f.querySelector('.modal-foot button[type=submit]').before(b);
+ setTimeout(()=>f.querySelector('input:not([type=hidden]),select')?.focus(),50)};
+const MAP={nama:'Nama',nisn:'NISN',nik:'NIK',tgl:'Tanggal Lahir',jenisKelamin:'Jenis Kelamin',usiaKehamilan:'Usia Kehamilan',kelas:'Kelas',alergi:'Alergi',ketAlergen:'Keterangan Alergen',kategori:'Kategori'};
+const toRow=o=>{const r={};for(const k in o)r[MAP[k]||k]=o[k];return r};
+const refreshUI=t=>{const a=$('#tableArea');a&&renderTable(a,t,getCachedRows(t),false);renderStatsArea(userStatTypes());
+ const g=$('.category-grid');if(g)g.outerHTML=t==='posyandu'?renderPosyanduCategories():t==='siswa'?renderKelasCategories():g.outerHTML};
+
+saveForm=async function(ev,type,rowNumber){
+ ev.preventDefault();const keep=again;again=false;const o={};
+ fieldsFor(type).forEach(f=>{const e=document.getElementById('form_'+f.key);if(e)o[f.key]=e.value.trim()});
+ if(type==='posyandu')o.kategori=document.getElementById('form_kategori').value;
+ o.jenisKelamin=normalizeGenderFE(o.jenisKelamin);if(o.alergi!=='Ya')o.ketAlergen='';
+ const er=validateRow(o,type);if(er){toast(er);return}
+ const rows=getCachedRows(type),tg=getTarget(session.unitName,type),before=rows.length;
+ if(!rowNumber&&tg!==null&&before>=tg&&!await ask('Melebihi target',`Data ${labelType(type)} sudah mencapai target (${tg}). Menambah data ini akan melebihi target dari admin. Tetap lanjutkan?`,'Ya, lanjutkan'))return;
+ const btns=ev.target.querySelectorAll('button');btns.forEach(b=>b.disabled=true);const sb=ev.target.querySelector('[type=submit]'),st=sb.textContent;sb.textContent='Menyimpan…';
+ try{
+  await apiPost(rowNumber?{action:'update',type,row:rowNumber,data:o}:{action:'add',type,data:o});
+  const r=toRow(o);
+  if(rowNumber){const x=rows.find(y=>y._row==rowNumber);x&&Object.assign(x,r)}
+  else{r._row=Math.max(1,...rows.map(y=>+y._row||0))+1;rows.push(r);window._newRow=o.nama}
+  setCachedRows(type,rows);refreshUI(type);
+  if(tg!==null&&!rowNumber&&before<tg&&rows.length>=tg){confetti();toast('🎉 Target '+labelType(type)+' tercapai!')}
+  else toast((rowNumber?'Data berhasil diperbarui':'Data berhasil ditambahkan')+(tg!==null?` (${rows.length}/${tg})`:''));
+  if(keep){ev.target.querySelectorAll('input:not([type=hidden]),textarea').forEach(e=>e.value='');
+   ev.target.querySelectorAll('select').forEach(e=>{if(!/kelas|kategori/.test(e.id))e.selectedIndex=0});
+   toggleAlergenField();togglePregnancyField();btns.forEach(b=>b.disabled=false);sb.textContent=st;ev.target.querySelector('input:not([type=hidden]),select')?.focus()}
+  else closeModal();
+  loadTable(type);loadTasks();
+ }catch(e){btns.forEach(b=>b.disabled=false);sb.textContent=st;toast('Gagal: '+e.message)}};
+
+/* 8. Hapus: konfirmasi rapi + langsung hilang dari tabel (rollback jika gagal) */
+deleteRow=async function(type,row){
+ if(!await ask('Hapus data ini?','Data yang dihapus tidak bisa dikembalikan.','Ya, hapus',true))return;
+ const old=getCachedRows(type).slice();
+ setCachedRows(type,old.filter(r=>r._row!=row).map(r=>(+r._row>row?{...r,_row:r._row-1}:r)));refreshUI(type);
+ try{await apiPost({action:'delete',type,row});toast('Data berhasil dihapus');loadTable(type);loadTasks()}
+ catch(e){setCachedRows(type,old);refreshUI(type);toast('Gagal: '+e.message)}};
+
+/* 9. Pintasan keyboard: / = cari, N = tambah data */
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.ctrlKey||e.metaKey||$('.modal'))return;
+ if(e.key==='/'){const i=$('#tableArea input[type=text]');if(i){e.preventDefault();i.focus()}}
+ else if(e.key==='n'&&session&&session.role!=='admin'){const b=$('#tableArea .btn-primary');b&&b.click()}});
+
+render();
+})();
+</script>
 </body>
 </html>
